@@ -1,0 +1,36 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  --grey: #ebecd0;
+  --green: #739552;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.row {
+  display: flex;
+}
+
+.square {
+  width: 100px;
+  height: 100px;
+}
+
+.green {
+  background-color: var(--green);
+}
+
+.grey {
+  background-color: var(--grey);
+}
+
