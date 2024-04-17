@@ -6,4 +6,4 @@ export interface Piece {
   y: number
 }
 
-export type Color = 'white' | 'black'
+export type Color = 'white' | 'black' | 'none'

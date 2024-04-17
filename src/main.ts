@@ -17,44 +17,44 @@ function generateCommonRowAndPawns(color: Color) {
   const commonRowX = isWhite ? 0 : 7
 
   const commonRows: Piece[] = [
-    { name: PIECES.rook, color, image: '', x: commonRowX, y: 0 },
+    { name: PIECES.rook, color, image: '', x: 0, y: commonRowX },
     {
       name: PIECES.horse,
       color,
       image: '',
-      x: commonRowX,
-      y: 1,
+      x: 1,
+      y: commonRowX,
     },
     {
       name: PIECES.bishop,
       color,
       image: '',
-      x: commonRowX,
-      y: 2,
+      x: 2,
+      y: commonRowX,
     },
     {
       name: PIECES.queen,
       color,
       image: '',
-      x: commonRowX,
-      y: 3,
+      x: 3,
+      y: commonRowX,
     },
-    { name: PIECES.king, color, image: '', x: commonRowX, y: 4 },
+    { name: PIECES.king, color, image: '', x: 4, y: commonRowX },
     {
       name: PIECES.bishop,
       color,
       image: '',
-      x: commonRowX,
-      y: 5,
+      x: 5,
+      y: commonRowX,
     },
     {
       name: PIECES.horse,
       color,
       image: '',
-      x: commonRowX,
-      y: 6,
+      x: 6,
+      y: commonRowX,
     },
-    { name: PIECES.rook, color, image: '', x: commonRowX, y: 7 },
+    { name: PIECES.rook, color, image: '', x: 7, y: commonRowX },
   ]
 
   const pawns = Array(8)
@@ -70,20 +70,28 @@ function generateCommonRowAndPawns(color: Color) {
   return { commonRows, pawns }
 }
 
-const FILL_BOARD = Array(4).fill(
-  Array(8).fill({
-    name: '',
-    color: '',
-    image: '',
+const FILL_BOARD: Array<Piece[]> = Array(4)
+  .fill('')
+  .map((_, y) => {
+    return Array(8)
+      .fill('')
+      .map((_, x) => {
+        return {
+          name: '',
+          color: 'none',
+          image: '',
+          x: x,
+          y: Math.abs(y - 5),
+        }
+      })
   })
-)
 
 const { commonRows: commonRowsBlack, pawns: pawnsBlack } =
   generateCommonRowAndPawns('black')
 const { commonRows: commonRowsWhite, pawns: pawnsWhite } =
   generateCommonRowAndPawns('white')
 
-const BOARD: Array<Piece[]> = [
+let BOARD: Array<Piece[]> = [
   commonRowsBlack,
   pawnsBlack,
   ...FILL_BOARD,
@@ -91,11 +99,11 @@ const BOARD: Array<Piece[]> = [
   commonRowsWhite,
 ]
 
-initGame()
+initGame(BOARD)
 initEvents()
 
-function initGame() {
-  console.log({ BOARD })
+function initGame(board: Array<Piece[]>) {
+  console.log({ board })
 
   const $board = document.getElementById('board')
 
@@ -103,17 +111,17 @@ function initGame() {
 
   const rows: string[] = []
 
-  BOARD.forEach((row, index) => {
+  board.forEach((row, index) => {
     const isEven = (index + 1) % 2 === 0 ? 0 : 1
 
     rows.push(
       row
         .map((piece, i) => {
-          const isPiece = piece.name.length > 0 ? 'piece' : ''
-
           return `<div class="${
             (i + 1) % 2 === isEven ? 'grey' : 'green'
-          } square ${isPiece}" data-color="${piece.color}">${piece.name}</div>`
+          } square" data-color="${piece.color}" data-xy="${piece.x}-${
+            piece.y
+          }">${piece.name}</div>`
         })
         .join('')
     )
@@ -127,13 +135,87 @@ function initGame() {
 }
 
 function initEvents() {
-  const $pieces = [...document.querySelectorAll('.piece')] as HTMLElement[]
+  const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
+  let $pieceSelected: HTMLElement | null
 
   $pieces.map(($pieceElement) => {
     $pieceElement.addEventListener('click', () => {
-      if ($pieceElement.dataset.color !== TURN) return
+      if (
+        ($pieceSelected?.textContent?.length ?? 0) > 0 &&
+        $pieceElement.textContent === '' &&
+        $pieceSelected !== $pieceElement
+      ) {
+        if (!$pieceElement.dataset.xy) return
 
-      console.log($pieceElement.textContent)
+        const [x, y] = $pieceElement.dataset.xy
+          .split('-')
+          .map((data) => Number(data))
+
+        return
+      }
+
+      if ($pieceElement.dataset.color !== TURN || !$pieceElement.dataset.xy)
+        return
+
+      if ($pieceSelected) {
+        $pieceSelected.classList.remove(
+          `selected-${
+            $pieceSelected.classList.contains('green') ? 'green' : 'grey'
+          }`
+        )
+
+        if ($pieceElement === $pieceSelected) {
+          $pieceSelected = null
+
+          return
+        }
+      }
+
+      $pieceSelected = $pieceElement
+
+      $pieceElement.classList.add(
+        `selected-${
+          $pieceElement.classList.contains('green') ? 'green' : 'grey'
+        }`
+      )
+
+      const [x, y] = $pieceElement.dataset.xy.split('-')
+
+      let getPiece: Piece | undefined
+
+      BOARD.forEach((row) => {
+        const findPiece = row.find((piece) => {
+          return (
+            piece.name === $pieceElement.textContent &&
+            piece.x === Number(x) &&
+            piece.y === Number(y)
+          )
+        })
+
+        if (findPiece) {
+          getPiece = findPiece
+        }
+      })
+
+      if (!getPiece) return
+
+      console.log(getPiece)
     })
   })
+}
+
+function canPieceMove(
+  piece: string,
+  currentPosition: { x: number; y: number },
+  movePosition: { x: number; y: number }
+) {
+  if (piece === 'pawn') {
+    if (
+      currentPosition.y + 2 > movePosition.y ||
+      currentPosition.y <= movePosition.y
+    )
+      return
+
+    console.log('permitido')
+  }
 }

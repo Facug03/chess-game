@@ -34,3 +34,10 @@ body {
   background-color: var(--grey);
 }
 
+.selected-green {
+  background-color: #b9ca42;
+}
+
+.selected-grey {
+  background-color: #f5f580;
+}
