@@ -143,13 +143,24 @@ function initEvents() {
       if (
         ($pieceSelected?.textContent?.length ?? 0) > 0 &&
         $pieceElement.textContent === '' &&
-        $pieceSelected !== $pieceElement
+        $pieceSelected !== $pieceElement &&
+        $pieceSelected
       ) {
         if (!$pieceElement.dataset.xy) return
 
         const [x, y] = $pieceElement.dataset.xy
           .split('-')
           .map((data) => Number(data))
+
+        // const [xSelected, ySelected] = $pieceSelected.dataset.xy
+        //   .split('-')
+        //   .map((data) => Number(data))
+
+        // canPieceMove({
+        //   piece: $pieceSelected?.textContent ?? '',
+        //   currentPosition: { xSelected, ySelected },
+        //   movePosition: { x, y },
+        // })
 
         return
       }
@@ -204,11 +215,15 @@ function initEvents() {
   })
 }
 
-function canPieceMove(
-  piece: string,
-  currentPosition: { x: number; y: number },
+function canPieceMove({
+  piece,
+  currentPosition,
+  movePosition,
+}: {
+  piece: string
+  currentPosition: { x: number; y: number }
   movePosition: { x: number; y: number }
-) {
+}) {
   if (piece === 'pawn') {
     if (
       currentPosition.y + 2 > movePosition.y ||
