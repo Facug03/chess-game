@@ -1,23 +1,20 @@
 import { PIECES } from '../../consts/pieces'
-import { Color, Piece, PieceName } from '../../types'
+import { Color, Piece, PieceName, PiecePosition } from '../../types'
 
 export class King implements Piece {
   public name: PieceName = PIECES.king
 
   constructor(
     public color: Color,
-    public x: number,
-    public y: number,
+    public position: PiecePosition,
     public image: string
   ) {
     this.color = color
-    this.x = x
-    this.y = y
+    this.position = position
     this.image = image
   }
 
-  setPosition(x: number, y: number): void {
-    this.x = x
-    this.y = y
+  setPosition(position: PiecePosition): void {
+    this.position = position
   }
 }
