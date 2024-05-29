@@ -1,12 +1,13 @@
 export interface Piece {
   name: PieceName
+  position: PiecePosition
   color: Color
   image: string
-  x: number
-  y: number
 
-  setPosition(x: number, y: number): void
+  setPosition(position: PiecePosition): void
 }
+
+export type PiecePosition = [number, number]
 
 export type PieceName =
   | 'rook'
