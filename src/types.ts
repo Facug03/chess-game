@@ -1,9 +1,20 @@
 export interface Piece {
-  name: string
+  name: PieceName
   color: Color
   image: string
   x: number
   y: number
+
+  setPosition(x: number, y: number): void
 }
 
-export type Color = 'white' | 'black' | 'none'
+export type PieceName =
+  | 'rook'
+  | 'knight'
+  | 'bishop'
+  | 'queen'
+  | 'king'
+  | 'pawn'
+  | 'empty'
+
+export type Color = 'white' | 'black' | 'empty'
