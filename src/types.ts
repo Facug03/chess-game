@@ -4,7 +4,13 @@ export interface Piece {
   color: Color
   image: string
 
+  movePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean
+  checkColision(moveTo: PiecePosition, board: ChessBoard): boolean
   setPosition(position: PiecePosition): void
+  squaresToMove(moveTo: PiecePosition): {
+    squaresToMoveX: number
+    squaresToMoveY: number
+  }
 }
 
 export type PiecePosition = [number, number]
@@ -19,3 +25,5 @@ export type PieceName =
   | 'empty'
 
 export type Color = 'white' | 'black' | 'empty'
+
+export type ChessBoard = Piece[][]
