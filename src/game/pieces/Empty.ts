@@ -17,4 +17,16 @@ export class Empty implements Piece {
   setPosition(position: PiecePosition): void {
     this.position = position
   }
+
+  movePieceTo(): boolean {
+    return false
+  }
+
+  checkColision(): boolean {
+    return false
+  }
+
+  squaresToMove() {
+    return { squaresToMoveX: 0, squaresToMoveY: 0 }
+  }
 }

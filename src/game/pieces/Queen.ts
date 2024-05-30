@@ -1,5 +1,5 @@
 import { PIECES } from '../../consts/pieces'
-import { Color, Piece, PieceName, PiecePosition } from '../../types'
+import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
 
 export class Queen implements Piece {
   public name: PieceName = PIECES.queen
@@ -16,5 +16,9 @@ export class Queen implements Piece {
 
   setPosition(position: PiecePosition): void {
     this.position = position
+  }
+
+  movePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
+    return false
   }
 }
