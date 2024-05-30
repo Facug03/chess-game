@@ -26,20 +26,56 @@ export class Board {
 
   private placeInitialPieces(color: Color): void {
     const isWhite = color === 'white'
-    const mainRow = isWhite ? 0 : 7
-    const pawnRow = isWhite ? 1 : 6
+    const mainRow = isWhite ? 7 : 0
+    const pawnRow = isWhite ? 6 : 1
 
-    this.board[mainRow][0] = new Rook(color, [mainRow, 0], '')
-    this.board[mainRow][1] = new Knight(color, [mainRow, 1], '')
-    this.board[mainRow][2] = new Bishop(color, [mainRow, 2], '')
-    this.board[mainRow][3] = new Queen(color, [mainRow, 3], '')
-    this.board[mainRow][4] = new King(color, [mainRow, 4], '')
-    this.board[mainRow][5] = new Bishop(color, [mainRow, 5], '')
-    this.board[mainRow][6] = new Knight(color, [mainRow, 6], '')
-    this.board[mainRow][7] = new Rook(color, [mainRow, 7], '')
+    this.board[mainRow][0] = new Rook(
+      color,
+      [mainRow, 0],
+      `/assets/pieces/${color}/rook.png`
+    )
+    this.board[mainRow][1] = new Knight(
+      color,
+      [mainRow, 1],
+      `/assets/pieces/${color}/knight.png`
+    )
+    this.board[mainRow][2] = new Bishop(
+      color,
+      [mainRow, 2],
+      `/assets/pieces/${color}/bishop.png`
+    )
+    this.board[mainRow][3] = new Queen(
+      color,
+      [mainRow, 3],
+      `/assets/pieces/${color}/queen.png`
+    )
+    this.board[mainRow][4] = new King(
+      color,
+      [mainRow, 4],
+      `/assets/pieces/${color}/king.png`
+    )
+    this.board[mainRow][5] = new Bishop(
+      color,
+      [mainRow, 5],
+      `/assets/pieces/${color}/bishop.png`
+    )
+    this.board[mainRow][6] = new Knight(
+      color,
+      [mainRow, 6],
+      `/assets/pieces/${color}/knight.png`
+    )
+    this.board[mainRow][7] = new Rook(
+      color,
+      [mainRow, 7],
+      `/assets/pieces/${color}/rook.png`
+    )
 
     for (let i = 0; i < 8; i++) {
-      this.board[pawnRow][i] = new Pawn(color, [pawnRow, i], '')
+      this.board[pawnRow][i] = new Pawn(
+        color,
+        [pawnRow, i],
+        `/assets/pieces/${color}/pawn.png`
+      )
     }
   }
 
@@ -50,7 +86,8 @@ export class Board {
         return Array(8)
           .fill('')
           .forEach((_, x) => {
-            this.board[x][Math.abs(y - 5)] = new Empty(
+            console.log(x)
+            this.board[Math.abs(y - 5)][x] = new Empty(
               'empty',
               [x, Math.abs(y - 5)],
               ''
@@ -66,6 +103,8 @@ export class Board {
 
     const rows: string[] = []
 
+    console.log(this.board)
+
     this.board.forEach((row, index) => {
       const isEven = (index + 1) % 2 === 0 ? 0 : 1
 
@@ -74,7 +113,11 @@ export class Board {
           .map((piece, i) => {
             const [x, y] = piece.position
 
-            return `<div class="${
+            console.log(piece.image)
+
+            return `<div style="background-image: url('${
+              piece.image
+            }');" class="${
               (i + 1) % 2 === isEven ? 'grey' : 'green'
             } square" data-color="${piece.color}" data-xy="${x}-${y}">${
               piece.name
