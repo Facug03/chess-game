@@ -4,6 +4,7 @@ import { Empty } from './Empty'
 
 export class Pawn implements Piece {
   public name: PieceName = PIECES.pawn
+  private moveCount: number = 0
 
   constructor(
     public color: Color,
@@ -22,20 +23,18 @@ export class Pawn implements Piece {
   movePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
     const [fromX, fromY] = this.position
     const [toX, toY] = moveTo
-    const squaresToMoveX = fromX - toX
-    const squaresToMoveY = fromY - toY
+    const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
     const currentPiece = board[fromX][fromY]
+    const formatSquaresToMoveX =
+      this.color === 'white' ? squaresToMoveX : -squaresToMoveX
 
-    console.log(
-      { squaresToMoveX, squaresToMoveY },
-      this.checkColision(moveTo, board)
-    )
+    console.log({ squaresToMoveX, squaresToMoveY })
 
-    if (squaresToMoveX <= 0 || squaresToMoveX > 2) {
+    if (formatSquaresToMoveX <= 0 || formatSquaresToMoveX > 2) {
       return false
     }
 
-    if (squaresToMoveX === 2 && squaresToMoveY !== 0) {
+    if (formatSquaresToMoveX === 2 && squaresToMoveY !== 0) {
       return false
     }
 
@@ -46,6 +45,7 @@ export class Pawn implements Piece {
     board[toX][toY] = currentPiece
     board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
     this.setPosition(moveTo)
+    this.moveCount += 1
 
     return true
   }
@@ -54,18 +54,26 @@ export class Pawn implements Piece {
     const [toX, toY] = moveTo
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
     const moveToBoardPosition = board[toX][toY]
+    const formatSquaresToMoveX =
+      this.color === 'white' ? squaresToMoveX : -squaresToMoveX
 
-    if (squaresToMoveX === 2 && squaresToMoveY === 0) {
+    if (formatSquaresToMoveX === 2 && squaresToMoveY === 0) {
+      if (this.moveCount > 0) {
+        return true
+      }
+
       if (moveToBoardPosition.name !== PIECES.empty) {
         return true
       }
 
-      if (board[toX - 1][toY].name !== PIECES.empty) {
+      const formatToX = this.color === 'white' ? toX + 1 : toX - 1
+
+      if (board[formatToX][toY].name !== PIECES.empty) {
         return true
       }
     }
 
-    if (squaresToMoveX === 1 && squaresToMoveY === 0) {
+    if (formatSquaresToMoveX === 1 && squaresToMoveY === 0) {
       if (
         moveToBoardPosition.name !== PIECES.empty &&
         moveToBoardPosition.color !== this.color
@@ -74,7 +82,7 @@ export class Pawn implements Piece {
       }
     }
 
-    if (squaresToMoveX === 1 && squaresToMoveY !== 0) {
+    if (formatSquaresToMoveX === 1 && squaresToMoveY !== 0) {
       if (moveToBoardPosition.color === this.color) {
         return true
       }
