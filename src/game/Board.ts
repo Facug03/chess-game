@@ -1,4 +1,4 @@
-import { ChessBoard, Color } from '../types'
+import { ChessBoard, Color, PiecePosition } from '../types'
 import { Bishop } from './pieces/Bishop'
 import { Empty } from './pieces/Empty'
 import { King } from './pieces/King'
@@ -12,6 +12,8 @@ export class Board {
   public board: ChessBoard
   private players: [Player, Player]
   private currentPlayer: Color
+  private $pieceSelected: HTMLElement | null = null
+  private $turn: HTMLElement | null = null
 
   constructor() {
     this.board = Array(8)
@@ -19,6 +21,7 @@ export class Board {
       .map(() => Array(8).fill(null))
     this.players = [new Player('white'), new Player('black')]
     this.currentPlayer = 'white'
+    this.$turn = document.getElementById('turn')
   }
 
   public startGame() {
@@ -27,37 +30,50 @@ export class Board {
 
   private gameLoop() {
     const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
-    let $pieceSelected: HTMLElement | null
 
     $pieces.map(($pieceElement) => {
       $pieceElement.addEventListener('click', () => {
         if (
           $pieceElement.dataset.color !== this.currentPlayer &&
-          $pieceSelected !== $pieceElement &&
-          $pieceSelected
+          this.$pieceSelected !== $pieceElement &&
+          this.$pieceSelected
         ) {
-          if (!$pieceElement.dataset.xy || !$pieceSelected.dataset.xy) return
+          if (!$pieceElement.dataset.xy || !this.$pieceSelected.dataset.xy)
+            return
 
-          const [x, y] = $pieceElement.dataset.xy
+          const [toX, toY] = $pieceElement.dataset.xy
             .split('-')
             .map((data) => Number(data))
-          const [xSelected, ySelected] = $pieceSelected.dataset.xy
+          const [fromX, fromY] = this.$pieceSelected.dataset.xy
             .split('-')
             .map((data) => Number(data))
-          const currentPiece = this.board[xSelected][ySelected]
-
-          const canMove = currentPiece.movePieceTo([x, y], this.board)
+          const currentPiece = this.board[fromX][fromY]
+          const canMove = currentPiece.canMovePieceTo([toX, toY], this.board)
 
           if (!canMove) {
             console.log('Cant move')
-            this.removeColorClass($pieceSelected)
-            $pieceSelected = null
+            this.removeColorClass()
+            this.$pieceSelected = null
+
+            return
           }
 
-          if (canMove) {
-            this.printBoard()
-            this.changePlayer()
+          const copyBoard = this.copyBoard()
+          this.movePiece([fromX, fromY], [toX, toY], copyBoard, false)
+          const isCheckAfterMove = this.isKingInCheck(copyBoard)
+
+          console.log({ isCheckAfterMove })
+
+          if (isCheckAfterMove) {
+            this.removeColorClass()
+            this.$pieceSelected = null
+
+            return
           }
+
+          this.movePiece([fromX, fromY], [toX, toY], this.board, true)
+          this.changePlayer()
+          this.printBoard()
 
           return
         }
@@ -69,22 +85,18 @@ export class Board {
           return
         }
 
-        if ($pieceSelected) {
-          this.removeColorClass($pieceSelected)
+        if (this.$pieceSelected) {
+          this.removeColorClass()
 
-          if ($pieceElement === $pieceSelected) {
-            $pieceSelected = null
+          if ($pieceElement === this.$pieceSelected) {
+            this.$pieceSelected = null
 
             return
           }
         }
 
-        $pieceSelected = $pieceElement
-        this.addColorClass($pieceElement)
-
-        // const [x, y] = $pieceElement.dataset.xy.split('-')
-
-        // const getPiece: Piece = this.board[Number(x)][Number(y)]
+        this.$pieceSelected = $pieceElement
+        this.addColorClass()
       })
     })
   }
@@ -202,19 +214,87 @@ export class Board {
     this.gameLoop()
   }
 
-  private removeColorClass($element: HTMLElement) {
-    $element.classList.remove(
-      `selected-${$element.classList.contains('green') ? 'green' : 'grey'}`
+  private removeColorClass() {
+    this.$pieceSelected?.classList.remove(
+      `selected-${
+        this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'
+      }`
     )
   }
 
-  private addColorClass($element: HTMLElement) {
-    $element.classList.add(
-      `selected-${$element.classList.contains('green') ? 'green' : 'grey'}`
+  private addColorClass() {
+    this.$pieceSelected?.classList.add(
+      `selected-${
+        this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'
+      }`
     )
   }
 
-  changePlayer() {
+  public changePlayer() {
     this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white'
+
+    if (this.$turn) {
+      this.$turn.innerText = `TURN: ${this.currentPlayer.toUpperCase()}`
+    }
+  }
+
+  private isKingInCheck(board: ChessBoard): boolean {
+    for (const player of this.players) {
+      console.log(player)
+
+      let kingPosition: PiecePosition | null = null
+
+      for (const row of board) {
+        for (const piece of row) {
+          if (piece.name === 'king' && piece.color !== player.getColor()) {
+            kingPosition = [board.indexOf(row), row.indexOf(piece)]
+            break
+          }
+        }
+
+        if (kingPosition) break
+      }
+
+      if (!kingPosition) continue
+
+      const isCheck = board.some((row) =>
+        row.some(
+          (piece) =>
+            piece.color === player.getColor() &&
+            piece.canMovePieceTo(kingPosition, board)
+        )
+      )
+
+      if (!isCheck) continue
+
+      return isCheck
+    }
+
+    return false
+  }
+
+  private movePiece(
+    position: PiecePosition,
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    changePosition: boolean
+  ) {
+    const [fromX, fromY] = position
+    const [toX, toY] = moveTo
+    const piece = board[fromX][fromY]
+
+    board[toX][toY] = piece
+    board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+
+    if (changePosition) {
+      piece.moveCount += 1
+      piece.setPosition(moveTo)
+    }
+  }
+
+  private copyBoard(): ChessBoard {
+    return this.board.map((row) => {
+      return row.map((piece) => piece)
+    })
   }
 }
