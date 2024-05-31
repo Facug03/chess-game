@@ -3,8 +3,9 @@ export interface Piece {
   position: PiecePosition
   color: Color
   image: string
+  moveCount: number
 
-  movePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean
+  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean
   checkColision(moveTo: PiecePosition, board: ChessBoard): boolean
   setPosition(position: PiecePosition): void
   squaresToMove(moveTo: PiecePosition): {
