@@ -1,9 +1,9 @@
 import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
-import { Empty } from './Empty'
 
 export class Knight implements Piece {
   public name: PieceName = PIECES.knight
+  public moveCount: number = 0
 
   constructor(
     public color: Color,
@@ -19,11 +19,8 @@ export class Knight implements Piece {
     this.position = position
   }
 
-  movePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
-    const [fromX, fromY] = this.position
-    const [toX, toY] = moveTo
+  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
-    const currentPiece = board[fromX][fromY]
 
     if (squaresToMoveX === 0 || squaresToMoveY === 0) {
       return false
@@ -40,10 +37,6 @@ export class Knight implements Piece {
     if (this.checkColision(moveTo, board)) {
       return false
     }
-
-    board[toX][toY] = currentPiece
-    board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
-    this.setPosition(moveTo)
 
     return true
   }

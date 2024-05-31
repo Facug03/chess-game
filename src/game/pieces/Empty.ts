@@ -3,6 +3,7 @@ import { Color, Piece, PieceName, PiecePosition } from '../../types'
 
 export class Empty implements Piece {
   public name: PieceName = PIECES.empty
+  public moveCount: number = 0
 
   constructor(
     public color: Color,
@@ -18,7 +19,7 @@ export class Empty implements Piece {
     this.position = position
   }
 
-  movePieceTo(): boolean {
+  canMovePieceTo(): boolean {
     return false
   }
 

@@ -1,9 +1,9 @@
 import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
-import { Empty } from './Empty'
 
 export class Bishop implements Piece {
   public name: PieceName = PIECES.bishop
+  public moveCount: number = 0
 
   constructor(
     public color: Color,
@@ -19,13 +19,8 @@ export class Bishop implements Piece {
     this.position = position
   }
 
-  movePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
-    const [fromX, fromY] = this.position
-    const [toX, toY] = moveTo
+  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
-    const currentPiece = board[fromX][fromY]
-
-    console.log({ squaresToMoveX, squaresToMoveY })
 
     if (Math.abs(squaresToMoveX) !== Math.abs(squaresToMoveY)) {
       return false
@@ -34,10 +29,6 @@ export class Bishop implements Piece {
     if (this.checkColision(moveTo, board)) {
       return false
     }
-
-    board[toX][toY] = currentPiece
-    board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
-    this.setPosition(moveTo)
 
     return true
   }
@@ -49,7 +40,6 @@ export class Bishop implements Piece {
     if (squaresToMoveX > 0) {
       if (squaresToMoveY > 0) {
         for (let i = 1; i < squaresToMoveY; i++) {
-          console.log(fromX, fromY)
           if (board[fromX - i][fromY - i].name !== PIECES.empty) {
             return true
           }
