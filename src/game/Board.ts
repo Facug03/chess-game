@@ -54,10 +54,9 @@ export class Board {
             $pieceSelected = null
           }
 
-          console.log(this.board)
-
           if (canMove) {
             this.printBoard()
+            this.changePlayer()
           }
 
           return
@@ -172,8 +171,6 @@ export class Board {
   private printBoard() {
     const $board = document.getElementById('board')
 
-    console.log(this.board)
-
     if (!$board) return
 
     const rows: string[] = []
@@ -190,9 +187,7 @@ export class Board {
               piece.image
             }');" class="${
               (i + 1) % 2 === isEven ? 'grey' : 'green'
-            } square" data-color="${piece.color}" data-xy="${x}-${y}">${
-              piece.name
-            }</div>`
+            } square" data-color="${piece.color}" data-xy="${x}-${y}"></div>`
           })
           .join('')
       )
@@ -217,5 +212,9 @@ export class Board {
     $element.classList.add(
       `selected-${$element.classList.contains('green') ? 'green' : 'grey'}`
     )
+  }
+
+  changePlayer() {
+    this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white'
   }
 }
