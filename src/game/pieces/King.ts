@@ -20,29 +20,84 @@ export class King implements Piece {
     this.position = position
   }
 
-  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
+  canMovePieceTo(
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    lastMovedPiece: Piece | null
+  ): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
+
+    console.log(this.position)
 
     if (isSameColor(board, moveTo, this.color)) {
       return false
     }
 
-    if (Math.abs(squaresToMoveX) > 1 || Math.abs(squaresToMoveY) > 1) {
+    if (Math.abs(squaresToMoveX) > 1 || Math.abs(squaresToMoveY) > 2) {
       return false
     }
 
-    if (this.checkColision(moveTo, board)) {
+    if (Math.abs(squaresToMoveX) === 1 && Math.abs(squaresToMoveY) === 2) {
+      return false
+    }
+
+    if (this.checkColision(moveTo, board, lastMovedPiece)) {
       return false
     }
 
     return true
   }
 
-  checkColision(moveTo: PiecePosition, board: ChessBoard): boolean {
+  checkColision(
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    lastMovedPiece: Piece | null
+  ): boolean {
     const [toX, toY] = moveTo
-
+    const [fromX, fromY] = this.position
+    const { squaresToMoveY } = this.squaresToMove(moveTo)
     if (board[toX][toY].color === this.color) {
       return true
+    }
+
+    if (Math.abs(squaresToMoveY) === 2) {
+      const isCheck = board.some((row) =>
+        row.some(
+          (piece) =>
+            piece.color !== this.color &&
+            piece.canMovePieceTo(this.position, board, lastMovedPiece)
+        )
+      )
+
+      if (isCheck) {
+        return true
+      }
+
+      if (this.moveCount > 0) {
+        return true
+      }
+
+      if (squaresToMoveY > 0) {
+        const squaresLeft = 7 - (fromY - 2)
+
+        for (let i = 1; i < squaresLeft; i++) {
+          if (i + 1 === squaresLeft) {
+            if (board[fromX][fromY - i].name !== 'rook') return true
+
+            if (board[fromX][fromY - i].moveCount > 0) return true
+          } else if (board[fromX][fromY - i].name !== PIECES.empty) return true
+        }
+      } else if (squaresToMoveY < 0) {
+        const squaresRigth = 7 - (fromY - 1)
+
+        for (let i = 1; i < squaresRigth; i++) {
+          if (i + 1 === squaresRigth) {
+            if (board[fromX][fromY + i].name !== 'rook') return true
+
+            if (board[fromX][fromY + i].moveCount > 0) return true
+          } else if (board[fromX][fromY + i].name !== PIECES.empty) return true
+        }
+      }
     }
 
     return false

@@ -65,7 +65,12 @@ export class Board {
 
           const copyBoard = this.copyBoard()
           this.movePiece([fromX, fromY], [toX, toY], copyBoard, false)
-          const isCheckAfterMove = this.isKingInCheck(copyBoard, this.players)
+          const currentPlayer =
+            this.currentPlayer === 'white' ? this.players[0] : this.players[1]
+
+          const isCheckAfterMove = this.isKingInCheck(copyBoard, [
+            currentPlayer,
+          ])
 
           if (isCheckAfterMove) {
             this.removeColorClass()
@@ -120,6 +125,8 @@ export class Board {
           .map((data) => Number(data)) as PiecePosition
 
         const validMoves = this.getAllPossibleMoves(position)
+
+        console.log({ validMoves })
 
         for (const move of validMoves) {
           const copyBoard = this.copyBoard()
@@ -337,6 +344,44 @@ export class Board {
       board[toX][toY] = piece
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
       board[formatToX][toY] = new Empty('empty', [toX, toY], '')
+    } else if (piece.name === 'king' && Math.abs(fromY - toY) === 2) {
+      board[toX][toY] = piece
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+
+      if (this.currentPlayer === 'white') {
+        if (fromY < toY) {
+          if (changePosition) {
+            board[toX][7].setPosition([toX, toY - 1])
+          }
+
+          board[toX][toY - 1] = board[toX][7]
+          board[toX][7] = new Empty('empty', [toX, 7], '')
+        } else {
+          if (changePosition) {
+            board[toX][0].setPosition([toX, toY + 1])
+          }
+
+          board[toX][toY + 1] = board[toX][0]
+          board[toX][0] = new Empty('empty', [toX, 0], '')
+        }
+      } else {
+        if (fromY > toY) {
+          console.log('right')
+          if (changePosition) {
+            board[toX][0].setPosition([toX, toY + 1])
+          }
+
+          board[toX][toY + 1] = board[toX][0]
+          board[toX][0] = new Empty('empty', [toX, 7], '')
+        } else {
+          if (changePosition) {
+            board[toX][7].setPosition([toX, toY - 1])
+          }
+
+          board[toX][toY - 1] = board[toX][7]
+          board[toX][7] = new Empty('empty', [toX, 0], '')
+        }
+      }
     } else {
       board[toX][toY] = piece
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
