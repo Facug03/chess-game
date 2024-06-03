@@ -1,5 +1,6 @@
 import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
+import { isSameColor } from '../../utils/isPieceSameColor'
 
 export class King implements Piece {
   public name: PieceName = PIECES.king
@@ -21,6 +22,10 @@ export class King implements Piece {
 
   canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
+
+    if (isSameColor(board, moveTo, this.color)) {
+      return false
+    }
 
     if (Math.abs(squaresToMoveX) > 1 || Math.abs(squaresToMoveY) > 1) {
       return false

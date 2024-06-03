@@ -1,5 +1,6 @@
 import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
+import { isSameColor } from '../../utils/isPieceSameColor'
 
 export class Pawn implements Piece {
   public name: PieceName = PIECES.pawn
@@ -21,18 +22,20 @@ export class Pawn implements Piece {
 
   canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
-    const formatSquaresToMoveX =
-      this.color === 'white' ? squaresToMoveX : -squaresToMoveX
+
+    if (isSameColor(board, moveTo, this.color)) {
+      return false
+    }
 
     if (
-      formatSquaresToMoveX <= 0 ||
-      formatSquaresToMoveX > 2 ||
+      squaresToMoveX <= 0 ||
+      squaresToMoveX > 2 ||
       Math.abs(squaresToMoveY) > 1
     ) {
       return false
     }
 
-    if (formatSquaresToMoveX === 2 && squaresToMoveY !== 0) {
+    if (squaresToMoveX === 2 && squaresToMoveY !== 0) {
       return false
     }
 
@@ -47,10 +50,8 @@ export class Pawn implements Piece {
     const [toX, toY] = moveTo
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
     const moveToBoardPosition = board[toX][toY]
-    const formatSquaresToMoveX =
-      this.color === 'white' ? squaresToMoveX : -squaresToMoveX
 
-    if (formatSquaresToMoveX === 2 && squaresToMoveY === 0) {
+    if (squaresToMoveX === 2 && squaresToMoveY === 0) {
       if (this.moveCount > 0) {
         return true
       }
@@ -66,7 +67,7 @@ export class Pawn implements Piece {
       }
     }
 
-    if (formatSquaresToMoveX === 1 && squaresToMoveY === 0) {
+    if (squaresToMoveX === 1 && squaresToMoveY === 0) {
       if (
         moveToBoardPosition.name !== PIECES.empty &&
         moveToBoardPosition.color !== this.color
@@ -75,7 +76,7 @@ export class Pawn implements Piece {
       }
     }
 
-    if (formatSquaresToMoveX === 1 && squaresToMoveY !== 0) {
+    if (squaresToMoveX === 1 && squaresToMoveY !== 0) {
       if (moveToBoardPosition.color === this.color) {
         return true
       }
@@ -91,8 +92,9 @@ export class Pawn implements Piece {
   squaresToMove(moveTo: PiecePosition) {
     const [fromX, fromY] = this.position
     const [toX, toY] = moveTo
-    const squaresToMoveX = fromX - toX
+    let squaresToMoveX = fromX - toX
     const squaresToMoveY = fromY - toY
+    squaresToMoveX = this.color === 'white' ? squaresToMoveX : -squaresToMoveX
 
     return {
       squaresToMoveX,
