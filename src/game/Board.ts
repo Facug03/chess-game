@@ -252,7 +252,9 @@ export class Board {
               piece.image
             }');" class="${
               (i + 1) % 2 === isEven ? 'grey' : 'green'
-            } square" data-color="${piece.color}" data-xy="${x}-${y}"></div>`
+            } square" data-color="${
+              piece.color
+            }" data-xy="${x}-${y}" draggable></div>`
           })
           .join('')
       )
@@ -260,7 +262,7 @@ export class Board {
 
     $board.innerHTML = rows
       .map((row) => {
-        return `<div class="row">${row}</div>`
+        return row
       })
       .join('')
 
