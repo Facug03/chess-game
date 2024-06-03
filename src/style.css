@@ -17,15 +17,39 @@ body {
   margin-top: 15px;
 }
 
-.row {
-  display: flex;
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(25px, 1fr));
+  width: 80vw;
+  height: 80vw;
+
+  @media (min-width: 768px) {
+    width: 65vw;
+    height: 65vw;
+  }
+
+  @media (min-width: 1024px) {
+    width: 60vw;
+    height: 60vw;
+  }
+
+  @media (min-width: 1440px) {
+    width: 40vw;
+    height: 40vw;
+  }
 }
+
+/* .row {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(25px, 1fr));
+} */
 
 .square {
   position: relative;
-  width: 100px;
-  height: 100px;
+  /* min-width: 25px;
+  min-height: 25px; */
   background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .guideLine {
