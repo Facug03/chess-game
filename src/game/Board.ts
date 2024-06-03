@@ -51,22 +51,21 @@ export class Board {
           const canMove = currentPiece.canMovePieceTo([toX, toY], this.board)
 
           if (!canMove) {
-            console.log('Cant move')
             this.removeColorClass()
             this.$pieceSelected = null
+            this.remodeAllGuideLines()
 
             return
           }
 
           const copyBoard = this.copyBoard()
           this.movePiece([fromX, fromY], [toX, toY], copyBoard, false)
-          const isCheckAfterMove = this.isKingInCheck(copyBoard)
-
-          console.log({ isCheckAfterMove })
+          const isCheckAfterMove = this.isKingInCheck(copyBoard, this.players)
 
           if (isCheckAfterMove) {
             this.removeColorClass()
             this.$pieceSelected = null
+            this.remodeAllGuideLines()
 
             return
           }
@@ -74,6 +73,18 @@ export class Board {
           this.movePiece([fromX, fromY], [toX, toY], this.board, true)
           this.changePlayer()
           this.printBoard()
+
+          const result = this.isCheckMateOrStealMate()
+
+          if (result.isCheckMate) {
+            console.log('Checkmate! Game over.')
+            return
+          }
+
+          if (result.isStealMate) {
+            console.log('Stealmate! Game over.')
+            return
+          }
 
           return
         }
@@ -87,6 +98,7 @@ export class Board {
 
         if (this.$pieceSelected) {
           this.removeColorClass()
+          this.remodeAllGuideLines()
 
           if ($pieceElement === this.$pieceSelected) {
             this.$pieceSelected = null
@@ -97,6 +109,35 @@ export class Board {
 
         this.$pieceSelected = $pieceElement
         this.addColorClass()
+
+        const position = $pieceElement.dataset.xy
+          .split('-')
+          .map((data) => Number(data)) as PiecePosition
+
+        const validMoves = this.getAllPossibleMoves(position)
+
+        for (const move of validMoves) {
+          const copyBoard = this.copyBoard()
+          this.movePiece(position, move, copyBoard, false)
+
+          const currentPlayer =
+            this.currentPlayer === 'white' ? this.players[0] : this.players[1]
+
+          if (!this.isKingInCheck(copyBoard, [currentPlayer])) {
+            const element = document.querySelector(
+              `.square[data-xy="${move[0]}-${move[1]}"]`
+            ) as HTMLElement
+
+            if (!element) continue
+
+            if (element.dataset.color !== 'empty') {
+              element.innerHTML = `<div class="captureGuideLine"></div>`
+              continue
+            }
+
+            element.innerHTML = `<div class="guideLine"></div>`
+          }
+        }
       })
     })
   }
@@ -238,15 +279,13 @@ export class Board {
     }
   }
 
-  private isKingInCheck(board: ChessBoard): boolean {
-    for (const player of this.players) {
-      console.log(player)
-
+  private isKingInCheck(board: ChessBoard, players: Player[]): boolean {
+    for (const player of players) {
       let kingPosition: PiecePosition | null = null
 
       for (const row of board) {
         for (const piece of row) {
-          if (piece.name === 'king' && piece.color !== player.getColor()) {
+          if (piece.name === 'king' && piece.color === player.getColor()) {
             kingPosition = [board.indexOf(row), row.indexOf(piece)]
             break
           }
@@ -260,7 +299,7 @@ export class Board {
       const isCheck = board.some((row) =>
         row.some(
           (piece) =>
-            piece.color === player.getColor() &&
+            piece.color !== player.getColor() &&
             piece.canMovePieceTo(kingPosition, board)
         )
       )
@@ -295,6 +334,76 @@ export class Board {
   private copyBoard(): ChessBoard {
     return this.board.map((row) => {
       return row.map((piece) => piece)
+    })
+  }
+
+  private isCheckMateOrStealMate(): {
+    isCheckMate: boolean
+    isStealMate: boolean
+  } {
+    const currentPlayer =
+      this.currentPlayer === 'white' ? this.players[0] : this.players[1]
+
+    for (const row of this.board) {
+      for (const piece of row) {
+        if (piece.color !== this.currentPlayer) {
+          continue
+        }
+
+        const validMoves = this.getAllPossibleMoves(piece.position)
+
+        for (const move of validMoves) {
+          const copyBoard = this.copyBoard()
+          this.movePiece(piece.position, move, copyBoard, false)
+
+          if (!this.isKingInCheck(copyBoard, [currentPlayer])) {
+            return {
+              isCheckMate: false,
+              isStealMate: false,
+            }
+          }
+        }
+      }
+    }
+
+    if (this.isKingInCheck(this.board, [currentPlayer])) {
+      return {
+        isCheckMate: true,
+        isStealMate: false,
+      }
+    }
+
+    return {
+      isCheckMate: false,
+      isStealMate: true,
+    }
+  }
+
+  private getAllPossibleMoves(position: PiecePosition): PiecePosition[] {
+    const [x, y] = position
+    const piece = this.board[x][y]
+    const possibleMoves: PiecePosition[] = []
+
+    for (let x = 0; x < 8; x++) {
+      for (let y = 0; y < 8; y++) {
+        if (piece.canMovePieceTo([x, y], this.board)) {
+          possibleMoves.push([x, y])
+        }
+      }
+    }
+
+    return possibleMoves
+  }
+
+  private remodeAllGuideLines() {
+    const guideLines = document.querySelectorAll(
+      '.guideLine, .captureGuideLine'
+    )
+
+    if (!guideLines) return
+
+    guideLines.forEach((guideLine) => {
+      guideLine.remove()
     })
   }
 }
