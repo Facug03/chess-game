@@ -1,4 +1,4 @@
-import { ChessBoard, Color, PiecePosition } from '../types'
+import { ChessBoard, Color, Piece, PiecePosition } from '../types'
 import { Bishop } from './pieces/Bishop'
 import { Empty } from './pieces/Empty'
 import { King } from './pieces/King'
@@ -9,11 +9,12 @@ import { Rook } from './pieces/Rook'
 import { Player } from './player/Player'
 
 export class Board {
-  public board: ChessBoard
+  private board: ChessBoard
   private players: [Player, Player]
   private currentPlayer: Color
   private $pieceSelected: HTMLElement | null = null
   private $turn: HTMLElement | null = null
+  private lastMovedPiece: Piece | null = null
 
   constructor() {
     this.board = Array(8)
@@ -48,7 +49,11 @@ export class Board {
             .split('-')
             .map((data) => Number(data))
           const currentPiece = this.board[fromX][fromY]
-          const canMove = currentPiece.canMovePieceTo([toX, toY], this.board)
+          const canMove = currentPiece.canMovePieceTo(
+            [toX, toY],
+            this.board,
+            this.lastMovedPiece
+          )
 
           if (!canMove) {
             this.removeColorClass()
@@ -300,7 +305,7 @@ export class Board {
         row.some(
           (piece) =>
             piece.color !== player.getColor() &&
-            piece.canMovePieceTo(kingPosition, board)
+            piece.canMovePieceTo(kingPosition, board, this.lastMovedPiece)
         )
       )
 
@@ -322,12 +327,25 @@ export class Board {
     const [toX, toY] = moveTo
     const piece = board[fromX][fromY]
 
-    board[toX][toY] = piece
-    board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+    if (
+      piece.name === 'pawn' &&
+      fromY !== toY &&
+      board[toX][toY].name === 'empty'
+    ) {
+      const formatToX = this.currentPlayer === 'white' ? toX + 1 : toX - 1
+
+      board[toX][toY] = piece
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+      board[formatToX][toY] = new Empty('empty', [toX, toY], '')
+    } else {
+      board[toX][toY] = piece
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+    }
 
     if (changePosition) {
       piece.moveCount += 1
       piece.setPosition(moveTo)
+      this.lastMovedPiece = piece
     }
   }
 
@@ -386,7 +404,7 @@ export class Board {
 
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        if (piece.canMovePieceTo([x, y], this.board)) {
+        if (piece.canMovePieceTo([x, y], this.board, this.lastMovedPiece)) {
           possibleMoves.push([x, y])
         }
       }

@@ -20,7 +20,11 @@ export class Pawn implements Piece {
     this.position = position
   }
 
-  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean {
+  canMovePieceTo(
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    lastMovedPiece: Piece | null
+  ): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
 
     if (isSameColor(board, moveTo, this.color)) {
@@ -39,14 +43,18 @@ export class Pawn implements Piece {
       return false
     }
 
-    if (this.checkColision(moveTo, board)) {
+    if (this.checkColision(moveTo, board, lastMovedPiece)) {
       return false
     }
 
     return true
   }
 
-  checkColision(moveTo: PiecePosition, board: ChessBoard): boolean {
+  checkColision(
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    lastMovedPiece: Piece | null
+  ): boolean {
     const [toX, toY] = moveTo
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
     const moveToBoardPosition = board[toX][toY]
@@ -82,7 +90,28 @@ export class Pawn implements Piece {
       }
 
       if (moveToBoardPosition.name === PIECES.empty) {
-        return true
+        const formatToX = this.color === 'white' ? toX + 1 : toX - 1
+        const sidePiece = board[formatToX][toY]
+
+        if (sidePiece.name === 'empty') {
+          return true
+        }
+
+        if (sidePiece.color === this.color) {
+          return true
+        }
+
+        if (sidePiece.name !== 'pawn') {
+          return true
+        }
+
+        if (sidePiece.moveCount !== 1) {
+          return true
+        }
+
+        if (lastMovedPiece?.position !== sidePiece.position) {
+          return true
+        }
       }
     }
 

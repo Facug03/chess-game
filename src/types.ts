@@ -5,8 +5,16 @@ export interface Piece {
   image: string
   moveCount: number
 
-  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard): boolean
-  checkColision(moveTo: PiecePosition, board: ChessBoard): boolean
+  canMovePieceTo(
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    lastMovedPiece: Piece | null
+  ): boolean
+  checkColision(
+    moveTo: PiecePosition,
+    board: ChessBoard,
+    lastMovedPiece: Piece | null
+  ): boolean
   setPosition(position: PiecePosition): void
   squaresToMove(moveTo: PiecePosition): {
     squaresToMoveX: number
