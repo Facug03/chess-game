@@ -8,6 +8,8 @@ import { Pawn } from './pieces/Pawn'
 import { Queen } from './pieces/Queen'
 import { Rook } from './pieces/Rook'
 import { Player } from './player/Player'
+import { Promote } from '../ui/Promote'
+import { getPromoteClass } from '../consts/getPromoteClass'
 
 export class Board {
   private board: ChessBoard
@@ -35,6 +37,8 @@ export class Board {
 
     $pieces.forEach(($pieceElement) => {
       $pieceElement.addEventListener('click', () => {
+        this.removePromotePawn()
+
         if (
           $pieceElement.dataset.color !== this.currentPlayer &&
           this.$pieceSelected !== $pieceElement &&
@@ -48,7 +52,7 @@ export class Board {
           const canMove = currentPiece.canMovePieceTo([toX, toY], this.board, this.lastMovedPiece)
 
           if (!canMove) {
-            this.removeColorClass()
+            this.removeColorClass(this.$pieceSelected)
             this.$pieceSelected = null
             this.remodeAllGuideLines()
 
@@ -62,7 +66,7 @@ export class Board {
           const isCheckAfterMove = this.isKingInCheck(copyBoard, [currentPlayer])
 
           if (isCheckAfterMove) {
-            this.removeColorClass()
+            this.removeColorClass(this.$pieceSelected)
             this.$pieceSelected = null
             this.remodeAllGuideLines()
 
@@ -70,8 +74,6 @@ export class Board {
           }
 
           this.movePiece([fromX, fromY], [toX, toY], this.board, true)
-          this.changePlayer()
-          this.printBoard()
 
           const result = this.isCheckMateOrStealMate()
 
@@ -93,7 +95,7 @@ export class Board {
         }
 
         if (this.$pieceSelected) {
-          this.removeColorClass()
+          this.removeColorClass(this.$pieceSelected)
           this.remodeAllGuideLines()
 
           if ($pieceElement === this.$pieceSelected) {
@@ -104,13 +106,9 @@ export class Board {
         }
 
         this.$pieceSelected = $pieceElement
-        this.addColorClass()
-
+        this.addColorClass(this.$pieceSelected)
         const position = $pieceElement.dataset.xy.split('-').map((data) => Number(data)) as PiecePosition
-
         const validMoves = this.getAllPossibleMoves(position)
-
-        console.log({ validMoves })
 
         for (const move of validMoves) {
           const copyBoard = this.copyBoard()
@@ -200,14 +198,16 @@ export class Board {
     this.gameLoop()
   }
 
-  private removeColorClass() {
-    this.$pieceSelected?.classList.remove(
-      `selected-${this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'}`
-    )
+  private removeColorClass($element: HTMLElement | null) {
+    if (!$element) return
+
+    $element.classList.remove(`selected-${$element.classList.contains('green') ? 'green' : 'grey'}`)
   }
 
-  private addColorClass() {
-    this.$pieceSelected?.classList.add(`selected-${this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'}`)
+  private addColorClass($element: HTMLElement) {
+    if (!$element) return
+
+    $element.classList.add(`selected-${$element.classList.contains('green') ? 'green' : 'grey'}`)
   }
 
   public changePlayer() {
@@ -237,7 +237,9 @@ export class Board {
 
       const isCheck = board.some((row) =>
         row.some(
-          (piece) => piece.color !== player.getColor() && piece.canMovePieceTo(kingPosition, board, this.lastMovedPiece)
+          (piece) =>
+            piece.color !== player.getColor() &&
+            piece.canMovePieceTo(kingPosition as PiecePosition, board, this.lastMovedPiece)
         )
       )
 
@@ -252,15 +254,64 @@ export class Board {
   private movePiece(position: PiecePosition, moveTo: PiecePosition, board: ChessBoard, changePosition: boolean) {
     const [fromX, fromY] = position
     const [toX, toY] = moveTo
-    const piece = board[fromX][fromY]
+    let piece = board[fromX][fromY]
+
+    if (
+      piece.name === 'pawn' &&
+      ((piece.color === 'white' && toX === 0) || (piece.color === 'black' && toX === 7)) &&
+      changePosition
+    ) {
+      // Promote pawn
+      const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`)
+
+      if (!$toElement) return
+
+      $toElement.innerHTML = Promote({ color: this.currentPlayer })
+
+      const $promoteElement = [...document.querySelectorAll('.promote')] as HTMLDivElement[]
+
+      if (!$promoteElement) return
+
+      for (const $element of $promoteElement) {
+        $element.addEventListener('click', (e) => {
+          e.stopPropagation()
+          const pieceName = $element.dataset.piece as keyof typeof getPromoteClass
+
+          console.log({ pieceName })
+
+          if (!pieceName) return
+
+          piece = new getPromoteClass[pieceName](
+            this.currentPlayer,
+            [toX, toY],
+            `/assets/pieces/${piece.color}/${pieceName}.png`
+          )
+
+          board[toX][toY] = piece
+          board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+
+          piece.moveCount += 1
+          piece.setPosition(moveTo)
+          this.lastMovedPiece = piece
+          this.removePromotePawn()
+          this.changePlayer()
+          this.printBoard()
+          this.highlightLastMovement([fromX, fromY], [toX, toY])
+        })
+      }
+
+      return
+    }
 
     if (piece.name === 'pawn' && fromY !== toY && board[toX][toY].name === 'empty') {
+      // En passant
       const formatToX = this.currentPlayer === 'white' ? toX + 1 : toX - 1
 
       board[toX][toY] = piece
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
       board[formatToX][toY] = new Empty('empty', [toX, toY], '')
     } else if (piece.name === 'king' && Math.abs(fromY - toY) === 2) {
+      // Castling
       board[toX][toY] = piece
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
 
@@ -307,6 +358,9 @@ export class Board {
       piece.moveCount += 1
       piece.setPosition(moveTo)
       this.lastMovedPiece = piece
+      this.changePlayer()
+      this.printBoard()
+      this.highlightLastMovement([fromX, fromY], [toX, toY])
     }
   }
 
@@ -374,14 +428,37 @@ export class Board {
   }
 
   private remodeAllGuideLines() {
-    const guideLines = document.querySelectorAll('.guideLine, .captureGuideLine')
+    const $guideLines = document.querySelectorAll('.guideLine, .captureGuideLine')
 
-    if (!guideLines) return
+    if (!$guideLines) return
 
-    guideLines.forEach((guideLine) => {
-      guideLine.remove()
+    $guideLines.forEach(($guideLine) => {
+      $guideLine.remove()
     })
   }
 
-  private promotePawn() {}
+  private removePromotePawn() {
+    const $promotes = document.querySelectorAll('.promote')
+
+    if (!$promotes) return
+
+    $promotes.forEach(($promote) => {
+      $promote.remove()
+    })
+  }
+
+  private highlightLastMovement(from: PiecePosition, move: PiecePosition) {
+    const [fromX, fromY] = from
+    const [toX, toY] = move
+    const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`) as HTMLElement
+    const $fromElement = document.querySelector(`[data-xy="${fromX}-${fromY}"]`) as HTMLElement
+    const $elements = [...document.querySelectorAll('.selected-green, .selected-grey')] as HTMLElement[]
+
+    $elements.forEach(($element) => {
+      this.removeColorClass($element)
+    })
+
+    this.addColorClass($toElement)
+    this.addColorClass($fromElement)
+  }
 }
