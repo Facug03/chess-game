@@ -27,11 +27,7 @@ export class Queen implements Piece {
       return false
     }
 
-    if (
-      Math.abs(squaresToMoveX) !== Math.abs(squaresToMoveY) &&
-      squaresToMoveX !== 0 &&
-      squaresToMoveY !== 0
-    ) {
+    if (Math.abs(squaresToMoveX) !== Math.abs(squaresToMoveY) && squaresToMoveX !== 0 && squaresToMoveY !== 0) {
       return false
     }
 

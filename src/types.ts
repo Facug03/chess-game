@@ -5,16 +5,8 @@ export interface Piece {
   image: string
   moveCount: number
 
-  canMovePieceTo(
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    lastMovedPiece: Piece | null
-  ): boolean
-  checkColision(
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    lastMovedPiece: Piece | null
-  ): boolean
+  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean
+  checkColision(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean
   setPosition(position: PiecePosition): void
   squaresToMove(moveTo: PiecePosition): {
     squaresToMoveX: number
@@ -24,14 +16,7 @@ export interface Piece {
 
 export type PiecePosition = [number, number]
 
-export type PieceName =
-  | 'rook'
-  | 'knight'
-  | 'bishop'
-  | 'queen'
-  | 'king'
-  | 'pawn'
-  | 'empty'
+export type PieceName = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn' | 'empty'
 
 export type Color = 'white' | 'black' | 'empty'
 

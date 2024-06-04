@@ -20,22 +20,14 @@ export class Pawn implements Piece {
     this.position = position
   }
 
-  canMovePieceTo(
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    lastMovedPiece: Piece | null
-  ): boolean {
+  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
 
     if (isSameColor(board, moveTo, this.color)) {
       return false
     }
 
-    if (
-      squaresToMoveX <= 0 ||
-      squaresToMoveX > 2 ||
-      Math.abs(squaresToMoveY) > 1
-    ) {
+    if (squaresToMoveX <= 0 || squaresToMoveX > 2 || Math.abs(squaresToMoveY) > 1) {
       return false
     }
 
@@ -50,11 +42,7 @@ export class Pawn implements Piece {
     return true
   }
 
-  checkColision(
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    lastMovedPiece: Piece | null
-  ): boolean {
+  checkColision(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const [toX, toY] = moveTo
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
     const moveToBoardPosition = board[toX][toY]
@@ -76,10 +64,7 @@ export class Pawn implements Piece {
     }
 
     if (squaresToMoveX === 1 && squaresToMoveY === 0) {
-      if (
-        moveToBoardPosition.name !== PIECES.empty &&
-        moveToBoardPosition.color !== this.color
-      ) {
+      if (moveToBoardPosition.name !== PIECES.empty && moveToBoardPosition.color !== this.color) {
         return true
       }
     }

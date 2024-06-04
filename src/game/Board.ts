@@ -32,28 +32,19 @@ export class Board {
   private gameLoop() {
     const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
 
-    $pieces.map(($pieceElement) => {
+    $pieces.forEach(($pieceElement) => {
       $pieceElement.addEventListener('click', () => {
         if (
           $pieceElement.dataset.color !== this.currentPlayer &&
           this.$pieceSelected !== $pieceElement &&
           this.$pieceSelected
         ) {
-          if (!$pieceElement.dataset.xy || !this.$pieceSelected.dataset.xy)
-            return
+          if (!$pieceElement.dataset.xy || !this.$pieceSelected.dataset.xy) return
 
-          const [toX, toY] = $pieceElement.dataset.xy
-            .split('-')
-            .map((data) => Number(data))
-          const [fromX, fromY] = this.$pieceSelected.dataset.xy
-            .split('-')
-            .map((data) => Number(data))
+          const [toX, toY] = $pieceElement.dataset.xy.split('-').map((data) => Number(data))
+          const [fromX, fromY] = this.$pieceSelected.dataset.xy.split('-').map((data) => Number(data))
           const currentPiece = this.board[fromX][fromY]
-          const canMove = currentPiece.canMovePieceTo(
-            [toX, toY],
-            this.board,
-            this.lastMovedPiece
-          )
+          const canMove = currentPiece.canMovePieceTo([toX, toY], this.board, this.lastMovedPiece)
 
           if (!canMove) {
             this.removeColorClass()
@@ -65,12 +56,9 @@ export class Board {
 
           const copyBoard = this.copyBoard()
           this.movePiece([fromX, fromY], [toX, toY], copyBoard, false)
-          const currentPlayer =
-            this.currentPlayer === 'white' ? this.players[0] : this.players[1]
+          const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
 
-          const isCheckAfterMove = this.isKingInCheck(copyBoard, [
-            currentPlayer,
-          ])
+          const isCheckAfterMove = this.isKingInCheck(copyBoard, [currentPlayer])
 
           if (isCheckAfterMove) {
             this.removeColorClass()
@@ -99,10 +87,7 @@ export class Board {
           return
         }
 
-        if (
-          $pieceElement.dataset.color !== this.currentPlayer ||
-          !$pieceElement.dataset.xy
-        ) {
+        if ($pieceElement.dataset.color !== this.currentPlayer || !$pieceElement.dataset.xy) {
           return
         }
 
@@ -120,9 +105,7 @@ export class Board {
         this.$pieceSelected = $pieceElement
         this.addColorClass()
 
-        const position = $pieceElement.dataset.xy
-          .split('-')
-          .map((data) => Number(data)) as PiecePosition
+        const position = $pieceElement.dataset.xy.split('-').map((data) => Number(data)) as PiecePosition
 
         const validMoves = this.getAllPossibleMoves(position)
 
@@ -132,13 +115,10 @@ export class Board {
           const copyBoard = this.copyBoard()
           this.movePiece(position, move, copyBoard, false)
 
-          const currentPlayer =
-            this.currentPlayer === 'white' ? this.players[0] : this.players[1]
+          const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
 
           if (!this.isKingInCheck(copyBoard, [currentPlayer])) {
-            const element = document.querySelector(
-              `.square[data-xy="${move[0]}-${move[1]}"]`
-            ) as HTMLElement
+            const element = document.querySelector(`.square[data-xy="${move[0]}-${move[1]}"]`) as HTMLElement
 
             if (!element) continue
 
@@ -167,53 +147,17 @@ export class Board {
     const mainRow = isWhite ? 7 : 0
     const pawnRow = isWhite ? 6 : 1
 
-    this.board[mainRow][0] = new Rook(
-      color,
-      [mainRow, 0],
-      `/assets/pieces/${color}/rook.png`
-    )
-    this.board[mainRow][1] = new Knight(
-      color,
-      [mainRow, 1],
-      `/assets/pieces/${color}/knight.png`
-    )
-    this.board[mainRow][2] = new Bishop(
-      color,
-      [mainRow, 2],
-      `/assets/pieces/${color}/bishop.png`
-    )
-    this.board[mainRow][3] = new Queen(
-      color,
-      [mainRow, 3],
-      `/assets/pieces/${color}/queen.png`
-    )
-    this.board[mainRow][4] = new King(
-      color,
-      [mainRow, 4],
-      `/assets/pieces/${color}/king.png`
-    )
-    this.board[mainRow][5] = new Bishop(
-      color,
-      [mainRow, 5],
-      `/assets/pieces/${color}/bishop.png`
-    )
-    this.board[mainRow][6] = new Knight(
-      color,
-      [mainRow, 6],
-      `/assets/pieces/${color}/knight.png`
-    )
-    this.board[mainRow][7] = new Rook(
-      color,
-      [mainRow, 7],
-      `/assets/pieces/${color}/rook.png`
-    )
+    this.board[mainRow][0] = new Rook(color, [mainRow, 0], `/assets/pieces/${color}/rook.png`)
+    this.board[mainRow][1] = new Knight(color, [mainRow, 1], `/assets/pieces/${color}/knight.png`)
+    this.board[mainRow][2] = new Bishop(color, [mainRow, 2], `/assets/pieces/${color}/bishop.png`)
+    this.board[mainRow][3] = new Queen(color, [mainRow, 3], `/assets/pieces/${color}/queen.png`)
+    this.board[mainRow][4] = new King(color, [mainRow, 4], `/assets/pieces/${color}/king.png`)
+    this.board[mainRow][5] = new Bishop(color, [mainRow, 5], `/assets/pieces/${color}/bishop.png`)
+    this.board[mainRow][6] = new Knight(color, [mainRow, 6], `/assets/pieces/${color}/knight.png`)
+    this.board[mainRow][7] = new Rook(color, [mainRow, 7], `/assets/pieces/${color}/rook.png`)
 
     for (let i = 0; i < 8; i++) {
-      this.board[pawnRow][i] = new Pawn(
-        color,
-        [pawnRow, i],
-        `/assets/pieces/${color}/pawn.png`
-      )
+      this.board[pawnRow][i] = new Pawn(color, [pawnRow, i], `/assets/pieces/${color}/pawn.png`)
     }
   }
 
@@ -224,11 +168,7 @@ export class Board {
         return Array(8)
           .fill('')
           .forEach((_, y) => {
-            this.board[Math.abs(x - 5)][y] = new Empty(
-              'empty',
-              [Math.abs(x - 5), y],
-              ''
-            )
+            this.board[Math.abs(x - 5)][y] = new Empty('empty', [Math.abs(x - 5), y], '')
           })
       })
   }
@@ -248,13 +188,9 @@ export class Board {
           .map((piece, i) => {
             const [x, y] = piece.position
 
-            return `<div style="background-image: url('${
-              piece.image
-            }');" class="${
+            return `<div style="background-image: url('${piece.image}');" class="${
               (i + 1) % 2 === isEven ? 'grey' : 'green'
-            } square" data-color="${
-              piece.color
-            }" data-xy="${x}-${y}" draggable></div>`
+            } square" data-color="${piece.color}" data-xy="${x}-${y}" draggable></div>`
           })
           .join('')
       )
@@ -271,18 +207,12 @@ export class Board {
 
   private removeColorClass() {
     this.$pieceSelected?.classList.remove(
-      `selected-${
-        this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'
-      }`
+      `selected-${this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'}`
     )
   }
 
   private addColorClass() {
-    this.$pieceSelected?.classList.add(
-      `selected-${
-        this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'
-      }`
-    )
+    this.$pieceSelected?.classList.add(`selected-${this.$pieceSelected.classList.contains('green') ? 'green' : 'grey'}`)
   }
 
   public changePlayer() {
@@ -312,9 +242,7 @@ export class Board {
 
       const isCheck = board.some((row) =>
         row.some(
-          (piece) =>
-            piece.color !== player.getColor() &&
-            piece.canMovePieceTo(kingPosition, board, this.lastMovedPiece)
+          (piece) => piece.color !== player.getColor() && piece.canMovePieceTo(kingPosition, board, this.lastMovedPiece)
         )
       )
 
@@ -326,21 +254,12 @@ export class Board {
     return false
   }
 
-  private movePiece(
-    position: PiecePosition,
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    changePosition: boolean
-  ) {
+  private movePiece(position: PiecePosition, moveTo: PiecePosition, board: ChessBoard, changePosition: boolean) {
     const [fromX, fromY] = position
     const [toX, toY] = moveTo
     const piece = board[fromX][fromY]
 
-    if (
-      piece.name === 'pawn' &&
-      fromY !== toY &&
-      board[toX][toY].name === 'empty'
-    ) {
+    if (piece.name === 'pawn' && fromY !== toY && board[toX][toY].name === 'empty') {
       const formatToX = this.currentPlayer === 'white' ? toX + 1 : toX - 1
 
       board[toX][toY] = piece
@@ -406,8 +325,7 @@ export class Board {
     isCheckMate: boolean
     isStealMate: boolean
   } {
-    const currentPlayer =
-      this.currentPlayer === 'white' ? this.players[0] : this.players[1]
+    const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
 
     for (const row of this.board) {
       for (const piece of row) {
@@ -461,9 +379,7 @@ export class Board {
   }
 
   private remodeAllGuideLines() {
-    const guideLines = document.querySelectorAll(
-      '.guideLine, .captureGuideLine'
-    )
+    const guideLines = document.querySelectorAll('.guideLine, .captureGuideLine')
 
     if (!guideLines) return
 

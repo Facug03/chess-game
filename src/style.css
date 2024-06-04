@@ -39,15 +39,8 @@ body {
   }
 }
 
-/* .row {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(25px, 1fr));
-} */
-
 .square {
   position: relative;
-  /* min-width: 25px;
-  min-height: 25px; */
   background-size: contain;
   background-repeat: no-repeat;
 }

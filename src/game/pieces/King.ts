@@ -20,11 +20,7 @@ export class King implements Piece {
     this.position = position
   }
 
-  canMovePieceTo(
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    lastMovedPiece: Piece | null
-  ): boolean {
+  canMovePieceTo(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
 
     console.log(this.position)
@@ -48,11 +44,7 @@ export class King implements Piece {
     return true
   }
 
-  checkColision(
-    moveTo: PiecePosition,
-    board: ChessBoard,
-    lastMovedPiece: Piece | null
-  ): boolean {
+  checkColision(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const [toX, toY] = moveTo
     const [fromX, fromY] = this.position
     const { squaresToMoveY } = this.squaresToMove(moveTo)
@@ -62,11 +54,7 @@ export class King implements Piece {
 
     if (Math.abs(squaresToMoveY) === 2) {
       const isCheck = board.some((row) =>
-        row.some(
-          (piece) =>
-            piece.color !== this.color &&
-            piece.canMovePieceTo(this.position, board, lastMovedPiece)
-        )
+        row.some((piece) => piece.color !== this.color && piece.canMovePieceTo(this.position, board, lastMovedPiece))
       )
 
       if (isCheck) {
