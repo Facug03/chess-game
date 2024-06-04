@@ -70,7 +70,7 @@ export class King implements Piece {
 
         for (let i = 1; i < squaresLeft; i++) {
           if (i + 1 === squaresLeft) {
-            if (board[fromX][fromY - i].name !== 'rook') return true
+            if (board[fromX][fromY - i].name !== PIECES.rook) return true
 
             if (board[fromX][fromY - i].moveCount > 0) return true
           } else if (board[fromX][fromY - i].name !== PIECES.empty) return true
@@ -80,7 +80,7 @@ export class King implements Piece {
 
         for (let i = 1; i < squaresRigth; i++) {
           if (i + 1 === squaresRigth) {
-            if (board[fromX][fromY + i].name !== 'rook') return true
+            if (board[fromX][fromY + i].name !== PIECES.rook) return true
 
             if (board[fromX][fromY + i].moveCount > 0) return true
           } else if (board[fromX][fromY + i].name !== PIECES.empty) return true

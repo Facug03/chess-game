@@ -78,7 +78,7 @@ export class Pawn implements Piece {
         const formatToX = this.color === 'white' ? toX + 1 : toX - 1
         const sidePiece = board[formatToX][toY]
 
-        if (sidePiece.name === 'empty') {
+        if (sidePiece.name === PIECES.empty) {
           return true
         }
 
@@ -86,7 +86,7 @@ export class Pawn implements Piece {
           return true
         }
 
-        if (sidePiece.name !== 'pawn') {
+        if (sidePiece.name !== PIECES.pawn) {
           return true
         }
 
