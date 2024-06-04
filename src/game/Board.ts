@@ -1,3 +1,4 @@
+import { Square } from '../ui/Square'
 import { ChessBoard, Color, Piece, PiecePosition } from '../types'
 import { Bishop } from './pieces/Bishop'
 import { Empty } from './pieces/Empty'
@@ -180,17 +181,11 @@ export class Board {
 
     const rows: string[] = []
 
-    this.board.forEach((row, index) => {
-      const isEven = (index + 1) % 2 === 0 ? 0 : 1
-
+    this.board.forEach((row) => {
       rows.push(
         row
-          .map((piece, i) => {
-            const [x, y] = piece.position
-
-            return `<div style="background-image: url('${piece.image}');" class="${
-              (i + 1) % 2 === isEven ? 'grey' : 'green'
-            } square" data-color="${piece.color}" data-xy="${x}-${y}" draggable></div>`
+          .map((piece) => {
+            return Square({ piece })
           })
           .join('')
       )
@@ -293,14 +288,14 @@ export class Board {
           }
 
           board[toX][toY + 1] = board[toX][0]
-          board[toX][0] = new Empty('empty', [toX, 7], '')
+          board[toX][0] = new Empty('empty', [toX, 0], '')
         } else {
           if (changePosition) {
             board[toX][7].setPosition([toX, toY - 1])
           }
 
           board[toX][toY - 1] = board[toX][7]
-          board[toX][7] = new Empty('empty', [toX, 0], '')
+          board[toX][7] = new Empty('empty', [toX, 7], '')
         }
       }
     } else {
@@ -387,4 +382,6 @@ export class Board {
       guideLine.remove()
     })
   }
+
+  private promotePawn() {}
 }
