@@ -14,7 +14,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 15px;
 }
 
 #board {
@@ -105,4 +104,66 @@ body {
 
 .selected-grey {
   background-color: #f5f580;
+}
+
+.options {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: #131313;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+
+  @media (min-width: 640px) {
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #242424;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 50px;
+  height: 25px;
+  border-radius: 8px;
+
+  @media (min-width: 360px) {
+    width: 65px;
+    height: 32px;
+  }
+
+  @media (min-width: 460px) {
+    width: 75px;
+    height: 37px;
+  }
+
+  @media (min-width: 640px) {
+    width: 80px;
+    height: 40px;
+  }
+
+  @media (min-width: 980px) {
+    width: 100px;
+    height: 50px;
+  }
+}
+
+.button:hover {
+  background-color: #353535;
+}
+
+.icon {
+  width: 65%;
+  height: 65%;
+}
+
+.icon-arrow {
+  width: 100%;
+  height: 100%;
 }
