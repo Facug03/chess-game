@@ -18,6 +18,7 @@ export class Board {
   private $pieceSelected: HTMLElement | null = null
   private $turn: HTMLElement | null = null
   private lastMovedPiece: Piece | null = null
+  private reverse = false
 
   constructor() {
     this.board = Array(8)
@@ -138,6 +139,12 @@ export class Board {
     this.placeInitialPieces('black')
     this.placeInitialEmptyPieces()
 
+    const $buttonReverse = document.getElementById('reverse') as HTMLButtonElement
+    $buttonReverse.addEventListener('click', () => {
+      this.reverse = !this.reverse
+      this.printBoard()
+    })
+
     this.printBoard()
   }
 
@@ -188,6 +195,8 @@ export class Board {
           .join('')
       )
     })
+
+    if (this.reverse) rows.reverse()
 
     $board.innerHTML = rows
       .map((row) => {
