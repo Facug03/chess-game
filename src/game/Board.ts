@@ -1,5 +1,5 @@
 import { Square } from '../ui/Square'
-import { ChessBoard, Color, Piece, PiecePosition } from '../types'
+import { ChessBoard, Color, Movements, Piece, PiecePosition } from '../types'
 import { Bishop } from './pieces/Bishop'
 import { Empty } from './pieces/Empty'
 import { King } from './pieces/King'
@@ -9,7 +9,7 @@ import { Queen } from './pieces/Queen'
 import { Rook } from './pieces/Rook'
 import { Player } from './player/Player'
 import { Promote } from '../ui/Promote'
-import { getPromoteClass } from '../consts/getPromoteClass'
+import { getPieceClass } from '../consts/getPieceClass'
 
 export class Board {
   private board: ChessBoard
@@ -19,6 +19,8 @@ export class Board {
   private $turn: HTMLElement | null = null
   private lastMovedPiece: Piece | null = null
   private reverse = false
+  private movements: Movements = []
+  private actualMovement = 0
 
   constructor() {
     this.board = Array(8)
@@ -30,7 +32,19 @@ export class Board {
   }
 
   public startGame() {
+    this.options()
     this.setupBoard()
+  }
+
+  private setupBoard() {
+    this.placeInitialPieces('white')
+    this.placeInitialPieces('black')
+    this.placeInitialEmptyPieces()
+    this.changePlayer('white')
+    this.movements = []
+    this.actualMovement = 0
+
+    this.printBoard()
   }
 
   private gameLoop() {
@@ -74,7 +88,13 @@ export class Board {
             return
           }
 
+          if (this.movements.length !== this.actualMovement) {
+            this.movements.splice(this.actualMovement)
+
+            console.log(this.movements)
+          }
           this.movePiece([fromX, fromY], [toX, toY], this.board, true)
+          this.actualMovement += 1
 
           const result = this.isCheckMateOrStealMate()
 
@@ -134,36 +154,22 @@ export class Board {
     })
   }
 
-  private setupBoard() {
-    this.placeInitialPieces('white')
-    this.placeInitialPieces('black')
-    this.placeInitialEmptyPieces()
-
-    const $buttonReverse = document.getElementById('reverse') as HTMLButtonElement
-    $buttonReverse.addEventListener('click', () => {
-      this.reverse = !this.reverse
-      this.printBoard()
-    })
-
-    this.printBoard()
-  }
-
   private placeInitialPieces(color: Color): void {
     const isWhite = color === 'white'
     const mainRow = isWhite ? 7 : 0
     const pawnRow = isWhite ? 6 : 1
 
-    this.board[mainRow][0] = new Rook(color, [mainRow, 0], `/assets/pieces/${color}/rook.png`)
-    this.board[mainRow][1] = new Knight(color, [mainRow, 1], `/assets/pieces/${color}/knight.png`)
-    this.board[mainRow][2] = new Bishop(color, [mainRow, 2], `/assets/pieces/${color}/bishop.png`)
-    this.board[mainRow][3] = new Queen(color, [mainRow, 3], `/assets/pieces/${color}/queen.png`)
-    this.board[mainRow][4] = new King(color, [mainRow, 4], `/assets/pieces/${color}/king.png`)
-    this.board[mainRow][5] = new Bishop(color, [mainRow, 5], `/assets/pieces/${color}/bishop.png`)
-    this.board[mainRow][6] = new Knight(color, [mainRow, 6], `/assets/pieces/${color}/knight.png`)
-    this.board[mainRow][7] = new Rook(color, [mainRow, 7], `/assets/pieces/${color}/rook.png`)
+    this.board[mainRow][0] = new Rook(color, [mainRow, 0], `/assets/pieces/${color}/rook.png`, 0)
+    this.board[mainRow][1] = new Knight(color, [mainRow, 1], `/assets/pieces/${color}/knight.png`, 0)
+    this.board[mainRow][2] = new Bishop(color, [mainRow, 2], `/assets/pieces/${color}/bishop.png`, 0)
+    this.board[mainRow][3] = new Queen(color, [mainRow, 3], `/assets/pieces/${color}/queen.png`, 0)
+    this.board[mainRow][4] = new King(color, [mainRow, 4], `/assets/pieces/${color}/king.png`, 0)
+    this.board[mainRow][5] = new Bishop(color, [mainRow, 5], `/assets/pieces/${color}/bishop.png`, 0)
+    this.board[mainRow][6] = new Knight(color, [mainRow, 6], `/assets/pieces/${color}/knight.png`, 0)
+    this.board[mainRow][7] = new Rook(color, [mainRow, 7], `/assets/pieces/${color}/rook.png`, 0)
 
     for (let i = 0; i < 8; i++) {
-      this.board[pawnRow][i] = new Pawn(color, [pawnRow, i], `/assets/pieces/${color}/pawn.png`)
+      this.board[pawnRow][i] = new Pawn(color, [pawnRow, i], `/assets/pieces/${color}/pawn.png`, 0)
     }
   }
 
@@ -174,7 +180,7 @@ export class Board {
         return Array(8)
           .fill('')
           .forEach((_, y) => {
-            this.board[Math.abs(x - 5)][y] = new Empty('empty', [Math.abs(x - 5), y], '')
+            this.board[Math.abs(x - 5)][y] = new Empty('empty', [Math.abs(x - 5), y], '', 0)
           })
       })
   }
@@ -219,8 +225,9 @@ export class Board {
     $element.classList.add(`selected-${$element.classList.contains('green') ? 'green' : 'grey'}`)
   }
 
-  public changePlayer() {
-    this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white'
+  public changePlayer(color?: Color) {
+    if (color) this.currentPlayer = color
+    else this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white'
 
     if (this.$turn) {
       this.$turn.innerText = `TURN: ${this.currentPlayer.toUpperCase()}`
@@ -265,6 +272,10 @@ export class Board {
     const [toX, toY] = moveTo
     let piece = board[fromX][fromY]
 
+    if (changePosition) {
+      piece.moveCount += 1
+    }
+
     if (
       piece.name === 'pawn' &&
       ((piece.color === 'white' && toX === 0) || (piece.color === 'black' && toX === 7)) &&
@@ -284,22 +295,27 @@ export class Board {
       for (const $element of $promoteElement) {
         $element.addEventListener('click', (e) => {
           e.stopPropagation()
-          const pieceName = $element.dataset.piece as keyof typeof getPromoteClass
-
-          console.log({ pieceName })
+          const pieceName = $element.dataset.piece as keyof typeof getPieceClass
 
           if (!pieceName) return
 
-          piece = new getPromoteClass[pieceName](
+          const newPiece = new getPieceClass[pieceName](
             this.currentPlayer,
             [toX, toY],
-            `/assets/pieces/${piece.color}/${pieceName}.png`
+            `/assets/pieces/${this.currentPlayer}/${pieceName}.png`,
+            piece.moveCount
           )
+          this.movements.push([
+            {
+              from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
+              to: board[toX][toY],
+            },
+          ])
+          piece = newPiece
 
           board[toX][toY] = piece
-          board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+          board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
 
-          piece.moveCount += 1
           piece.setPosition(moveTo)
           this.lastMovedPiece = piece
           this.removePromotePawn()
@@ -316,55 +332,142 @@ export class Board {
       // En passant
       const formatToX = this.currentPlayer === 'white' ? toX + 1 : toX - 1
 
+      if (changePosition) {
+        this.movements.push([
+          {
+            from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
+            to: board[toX][toY],
+          },
+          {
+            from: new getPieceClass[board[formatToX][toY].name](
+              board[formatToX][toY].color,
+              [formatToX, toY],
+              board[formatToX][toY].image,
+              board[formatToX][toY].moveCount
+            ),
+            to: new Empty('empty', [formatToX, toY], '', 0),
+          },
+        ])
+      }
+
       board[toX][toY] = piece
-      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
-      board[formatToX][toY] = new Empty('empty', [toX, toY], '')
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
+      board[formatToX][toY] = new Empty('empty', [formatToX, toY], '', 0)
     } else if (piece.name === 'king' && Math.abs(fromY - toY) === 2) {
       // Castling
+      this.movements.push([
+        {
+          from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
+          to: board[toX][toY],
+        },
+      ])
       board[toX][toY] = piece
-      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
 
       if (this.currentPlayer === 'white') {
         if (fromY < toY) {
           if (changePosition) {
+            this.movements[this.movements.length - 1].push({
+              from: new getPieceClass[board[toX][7].name](
+                board[toX][7].color,
+                [toX, 7],
+                board[toX][7].image,
+                board[toX][7].moveCount
+              ),
+              to: new getPieceClass[board[toX][toY - 1].name](
+                board[toX][toY - 1].color,
+                [toX, toY - 1],
+                board[toX][toY - 1].image,
+                board[toX][toY - 1].moveCount
+              ),
+            })
             board[toX][7].setPosition([toX, toY - 1])
           }
 
           board[toX][toY - 1] = board[toX][7]
-          board[toX][7] = new Empty('empty', [toX, 7], '')
+          board[toX][7] = new Empty('empty', [toX, 7], '', 0)
         } else {
           if (changePosition) {
+            this.movements[this.movements.length - 1].push({
+              from: new getPieceClass[board[toX][0].name](
+                board[toX][0].color,
+                [toX, 0],
+                board[toX][0].image,
+                board[toX][0].moveCount
+              ),
+              to: new getPieceClass[board[toX][toY + 1].name](
+                board[toX][toY + 1].color,
+                [toX, toY + 1],
+                board[toX][toY + 1].image,
+                board[toX][toY + 1].moveCount
+              ),
+            })
             board[toX][0].setPosition([toX, toY + 1])
           }
 
           board[toX][toY + 1] = board[toX][0]
-          board[toX][0] = new Empty('empty', [toX, 0], '')
+          board[toX][0] = new Empty('empty', [toX, 0], '', 0)
         }
       } else {
         if (fromY > toY) {
-          console.log('right')
           if (changePosition) {
+            this.movements[this.movements.length - 1].push({
+              from: new getPieceClass[board[toX][0].name](
+                board[toX][0].color,
+                [toX, 0],
+                board[toX][0].image,
+                board[toX][0].moveCount
+              ),
+              to: new getPieceClass[board[toX][toY + 1].name](
+                board[toX][toY + 1].color,
+                [toX, toY + 1],
+                board[toX][toY + 1].image,
+                board[toX][toY + 1].moveCount
+              ),
+            })
             board[toX][0].setPosition([toX, toY + 1])
           }
 
           board[toX][toY + 1] = board[toX][0]
-          board[toX][0] = new Empty('empty', [toX, 0], '')
+          board[toX][0] = new Empty('empty', [toX, 0], '', 0)
         } else {
           if (changePosition) {
+            this.movements[this.movements.length - 1].push({
+              from: new getPieceClass[board[toX][7].name](
+                board[toX][7].color,
+                [toX, 7],
+                board[toX][7].image,
+                board[toX][7].moveCount
+              ),
+              to: new getPieceClass[board[toX][toY - 1].name](
+                board[toX][toY - 1].color,
+                [toX, toY - 1],
+                board[toX][toY - 1].image,
+                board[toX][toY - 1].moveCount
+              ),
+            })
             board[toX][7].setPosition([toX, toY - 1])
           }
 
           board[toX][toY - 1] = board[toX][7]
-          board[toX][7] = new Empty('empty', [toX, 7], '')
+          board[toX][7] = new Empty('empty', [toX, 7], '', 0)
         }
       }
     } else {
+      if (changePosition) {
+        this.movements.push([
+          {
+            from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
+            to: board[toX][toY],
+          },
+        ])
+      }
+
       board[toX][toY] = piece
-      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '')
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
     }
 
     if (changePosition) {
-      piece.moveCount += 1
       piece.setPosition(moveTo)
       this.lastMovedPiece = piece
       this.changePlayer()
@@ -469,5 +572,99 @@ export class Board {
 
     this.addColorClass($toElement)
     this.addColorClass($fromElement)
+  }
+
+  private options() {
+    const $reverse = document.getElementById('chess-reverse')
+    const $reset = document.getElementById('chess-reset')
+    const $undo = document.getElementById('chess-undo')
+    const $redo = document.getElementById('chess-redo')
+
+    if (!$reverse || !$reset || !$undo || !$redo) return
+
+    $reverse.addEventListener('click', () => {
+      this.reverse = !this.reverse
+      this.printBoard()
+    })
+
+    $reset.addEventListener('click', () => {
+      this.setupBoard()
+    })
+
+    $undo.addEventListener('click', () => {
+      if (!this.movements.length) return
+
+      const lastMovements = this.movements[this.actualMovement - 1]
+
+      if (!lastMovements) return
+
+      for (const movement of lastMovements) {
+        // todo: actualizar last movement
+        console.log({ movement })
+        const [fromX, fromY] = movement.from.position
+        const [toX, toY] = movement.to.position
+
+        if (fromX === toX && fromY === toY) {
+          this.board[fromX][fromY] = new getPieceClass[movement.from.name](
+            movement.from.color,
+            [fromX, fromY],
+            movement.from.image,
+            movement.from.moveCount
+          )
+          continue
+        }
+
+        this.board[fromX][fromY] = new getPieceClass[movement.from.name](
+          movement.from.color,
+          [fromX, fromY],
+          movement.from.image,
+          movement.from.moveCount - 1
+        )
+        this.board[toX][toY] = movement.to
+      }
+
+      this.actualMovement -= 1
+      this.changePlayer(this.actualMovement % 2 === 0 ? 'white' : 'black')
+
+      this.printBoard()
+    })
+
+    $redo.addEventListener('click', () => {
+      if (!this.movements.length) return
+
+      const nextMovements = this.movements[this.actualMovement]
+
+      if (!nextMovements) return
+
+      for (const movement of nextMovements) {
+        // todo: actualizar last movement
+        console.log({ movement })
+        const [fromX, fromY] = movement.from.position
+        const [toX, toY] = movement.to.position
+
+        if (fromX === toX && fromY === toY) {
+          this.board[toX][toY] = new getPieceClass[movement.from.name](
+            movement.from.color,
+            [toX, toY],
+            movement.from.image,
+            movement.from.moveCount + 1
+          )
+          continue
+        }
+
+        this.board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
+        this.board[toX][toY] = new getPieceClass[movement.from.name](
+          movement.from.color,
+          [toX, toY],
+          movement.from.image,
+          movement.from.moveCount + 1
+        )
+      }
+
+      this.actualMovement += 1
+      this.changePlayer(this.actualMovement % 2 === 0 ? 'white' : 'black')
+
+      this.printBoard()
+    })
   }
 }
