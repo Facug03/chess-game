@@ -21,3 +21,5 @@ export type PieceName = 'rook' | 'knight' | 'bishop' | 'queen' | 'king' | 'pawn'
 export type Color = 'white' | 'black' | 'empty'
 
 export type ChessBoard = Piece[][]
+
+export type Movements = { from: Piece; to: Piece }[][]
