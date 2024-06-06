@@ -4,16 +4,17 @@ import { isSameColor } from '../../utils/isPieceSameColor'
 
 export class Pawn implements Piece {
   public name: PieceName = PIECES.pawn
-  public moveCount: number = 0
 
   constructor(
     public color: Color,
     public position: PiecePosition,
-    public image: string
+    public image: string,
+    public moveCount: number
   ) {
     this.color = color
     this.position = position
     this.image = image
+    this.moveCount = moveCount
   }
 
   setPosition(position: PiecePosition): void {
@@ -78,6 +79,8 @@ export class Pawn implements Piece {
         const formatToX = this.color === 'white' ? toX + 1 : toX - 1
         const sidePiece = board[formatToX][toY]
 
+        console.log([formatToX, toY], sidePiece, lastMovedPiece)
+
         if (sidePiece.name === PIECES.empty) {
           return true
         }
@@ -91,10 +94,13 @@ export class Pawn implements Piece {
         }
 
         if (sidePiece.moveCount !== 1) {
+          console.log('entre')
           return true
         }
 
         if (lastMovedPiece?.position !== sidePiece.position) {
+          console.log('entre2')
+
           return true
         }
       }

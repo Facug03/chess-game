@@ -1,3 +1,4 @@
+import { config } from '../config'
 import { Piece } from '../types'
 
 interface Props {
@@ -10,5 +11,5 @@ export function Square({ piece }: Props): string {
 
   return `<div style="background-image: url('${piece.image}');" class="${
     (y + 1) % 2 === isEven ? 'grey' : 'green'
-  } square" data-color="${piece.color}" data-xy="${x}-${y}"></div>`
+  } square" data-color="${piece.color}" data-xy="${x}-${y}">${config.PROD ? '' : `<p style="color: black; margin: 0; margin-top: auto; font-size: 12px; font-weight: bold;">${x}-${y}</p>`}</div>`
 }
