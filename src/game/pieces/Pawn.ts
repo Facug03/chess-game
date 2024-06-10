@@ -79,8 +79,6 @@ export class Pawn implements Piece {
         const formatToX = this.color === 'white' ? toX + 1 : toX - 1
         const sidePiece = board[formatToX][toY]
 
-        console.log([formatToX, toY], sidePiece, lastMovedPiece)
-
         if (sidePiece.name === PIECES.empty) {
           return true
         }
@@ -94,13 +92,13 @@ export class Pawn implements Piece {
         }
 
         if (sidePiece.moveCount !== 1) {
-          console.log('entre')
           return true
         }
 
-        if (lastMovedPiece?.position !== sidePiece.position) {
-          console.log('entre2')
-
+        if (
+          lastMovedPiece?.position[0] !== sidePiece.position[0] ||
+          lastMovedPiece?.position[1] !== sidePiece.position[1]
+        ) {
           return true
         }
       }

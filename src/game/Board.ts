@@ -90,8 +90,6 @@ export class Board {
 
           if (this.movements.length !== this.actualMovement) {
             this.movements.splice(this.actualMovement)
-
-            console.log(this.movements)
           }
           this.movePiece([fromX, fromY], [toX, toY], this.board, true)
           this.actualMovement += 1
@@ -138,16 +136,16 @@ export class Board {
           const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
 
           if (!this.isKingInCheck(copyBoard, [currentPlayer])) {
-            const element = document.querySelector(`.square[data-xy="${move[0]}-${move[1]}"]`) as HTMLElement
+            const $element = document.querySelector(`.square[data-xy="${move[0]}-${move[1]}"]`) as HTMLElement
 
-            if (!element) continue
+            if (!$element) continue
 
-            if (element.dataset.color !== 'empty') {
-              element.innerHTML = `<div class="captureGuideLine"></div>`
+            if ($element.dataset.color !== 'empty') {
+              $element.innerHTML = `<div class="captureGuideLine"></div>`
               continue
             }
 
-            element.innerHTML = `<div class="guideLine"></div>`
+            $element.innerHTML = `<div class="guideLine"></div>`
           }
         }
       })
@@ -599,27 +597,38 @@ export class Board {
       if (!lastMovements) return
 
       for (const movement of lastMovements) {
-        // todo: actualizar last movement
-        console.log({ movement })
         const [fromX, fromY] = movement.from.position
         const [toX, toY] = movement.to.position
 
-        if (fromX === toX && fromY === toY) {
-          this.board[fromX][fromY] = new getPieceClass[movement.from.name](
-            movement.from.color,
-            [fromX, fromY],
-            movement.from.image,
-            movement.from.moveCount
-          )
-          continue
+        if (lastMovements.indexOf(movement) === 0 && this.movements[this.actualMovement - 2]) {
+          const movementBefore = this.movements[this.actualMovement - 2]
+
+          if (this.movements[this.actualMovement - 2][0] && movementBefore) {
+            this.lastMovedPiece = new getPieceClass[movementBefore[0].from.name](
+              movementBefore[0].from.color,
+              movementBefore[0].to.position,
+              movementBefore[0].from.image,
+              movementBefore[0].from.moveCount
+            )
+          } else this.lastMovedPiece = null
         }
 
-        this.board[fromX][fromY] = new getPieceClass[movement.from.name](
+        const newPiece = new getPieceClass[movement.from.name](
           movement.from.color,
           [fromX, fromY],
           movement.from.image,
-          movement.from.moveCount - 1
+          movement.from.moveCount
         )
+
+        if (fromX === toX && fromY === toY) {
+          this.board[fromX][fromY] = newPiece
+          continue
+        }
+
+        if (lastMovements.indexOf(movement) === 0) {
+          newPiece.moveCount -= 1
+        }
+        this.board[fromX][fromY] = newPiece
         this.board[toX][toY] = movement.to
       }
 
@@ -637,28 +646,32 @@ export class Board {
       if (!nextMovements) return
 
       for (const movement of nextMovements) {
-        // todo: actualizar last movement
-        console.log({ movement })
         const [fromX, fromY] = movement.from.position
         const [toX, toY] = movement.to.position
 
         if (fromX === toX && fromY === toY) {
-          this.board[toX][toY] = new getPieceClass[movement.from.name](
-            movement.from.color,
+          this.board[toX][toY] = new getPieceClass[movement.to.name](
+            movement.to.color,
             [toX, toY],
-            movement.from.image,
-            movement.from.moveCount + 1
+            movement.to.image,
+            movement.to.moveCount
           )
           continue
         }
 
-        this.board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
-        this.board[toX][toY] = new getPieceClass[movement.from.name](
+        const newPiece = new getPieceClass[movement.from.name](
           movement.from.color,
           [toX, toY],
           movement.from.image,
-          movement.from.moveCount + 1
+          movement.from.moveCount
         )
+
+        if (nextMovements.indexOf(movement) === 0) {
+          this.lastMovedPiece = newPiece
+        }
+
+        this.board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
+        this.board[toX][toY] = newPiece
       }
 
       this.actualMovement += 1
