@@ -1,5 +1,5 @@
 import { Square } from '../ui/Square'
-import { ChessBoard, Color, Movements, Piece, PiecePosition } from '../types'
+import { ChessBoard, Color, FinishGame, Movements, Piece, PiecePosition } from '../types'
 import { Bishop } from './pieces/Bishop'
 import { Empty } from './pieces/Empty'
 import { King } from './pieces/King'
@@ -10,6 +10,7 @@ import { Rook } from './pieces/Rook'
 import { Player } from './player/Player'
 import { Promote } from '../ui/Promote'
 import { getPieceClass } from '../consts/getPieceClass'
+import { Gameover } from '../ui/Gameover'
 
 export class Board {
   private board: ChessBoard
@@ -21,6 +22,7 @@ export class Board {
   private reverse = false
   private movements: Movements = []
   private actualMovement = 0
+  private state: 'playing' | 'finished' = 'playing'
 
   constructor() {
     this.board = Array(8)
@@ -43,6 +45,7 @@ export class Board {
     this.changePlayer('white')
     this.movements = []
     this.actualMovement = 0
+    document.querySelector('.gameover')?.remove()
 
     this.printBoard()
   }
@@ -52,6 +55,8 @@ export class Board {
 
     $pieces.forEach(($pieceElement) => {
       $pieceElement.addEventListener('click', () => {
+        if (this.state !== 'playing') return
+
         this.removePromotePawn()
 
         if (
@@ -97,12 +102,12 @@ export class Board {
           const result = this.isCheckMateOrStealMate()
 
           if (result.isCheckMate) {
-            console.log('Checkmate! Game over.')
+            this.gameOver('checkmate', this.currentPlayer === 'white' ? 'black' : 'white')
             return
           }
 
           if (result.isStealMate) {
-            console.log('Stealmate! Game over.')
+            this.gameOver('stalemate', this.currentPlayer === 'white' ? 'black' : 'white')
             return
           }
 
@@ -678,6 +683,23 @@ export class Board {
       this.changePlayer(this.actualMovement % 2 === 0 ? 'white' : 'black')
 
       this.printBoard()
+    })
+  }
+
+  private gameOver(type: FinishGame, win: Color) {
+    this.state = 'finished'
+    const $app = document.getElementById('app')
+
+    if (!$app) return
+
+    $app.insertAdjacentHTML('beforeend', Gameover({ type, win }))
+
+    const $restart = document.getElementById('chess-restart')
+
+    if (!$restart) return
+
+    $restart.addEventListener('click', () => {
+      this.setupBoard()
     })
   }
 }

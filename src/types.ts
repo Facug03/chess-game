@@ -23,3 +23,5 @@ export type Color = 'white' | 'black' | 'empty'
 export type ChessBoard = Piece[][]
 
 export type Movements = { from: Piece; to: Piece }[][]
+
+export type FinishGame = 'checkmate' | 'stalemate'
