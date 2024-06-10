@@ -11,5 +11,11 @@ export function Square({ piece }: Props): string {
 
   return `<div style="background-image: url('${piece.image}');" class="${
     (y + 1) % 2 === isEven ? 'grey' : 'green'
-  } square" data-color="${piece.color}" data-xy="${x}-${y}">${config.PROD ? '' : `<p style="color: black; margin: 0; margin-top: auto; font-size: 12px; font-weight: bold;">${x}-${y}</p>`}</div>`
+  } square" data-color="${piece.color}" data-xy="${x}-${y}">${Debug({ piece })}</div>`
+}
+
+function Debug({ piece }: Props): string {
+  const [x, y] = piece.position
+
+  return `${config.PROD ? '' : `<p style="color: black; margin: 0; margin-top: auto; font-size: 12px; font-weight: bold;">${x}-${y} ${piece.moveCount}</p>`}`
 }
