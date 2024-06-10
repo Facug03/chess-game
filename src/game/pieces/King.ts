@@ -24,8 +24,6 @@ export class King implements Piece {
   canMovePieceTo(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
 
-    console.log(this.position)
-
     if (isSameColor(board, moveTo, this.color)) {
       return false
     }
@@ -66,25 +64,31 @@ export class King implements Piece {
         return true
       }
 
-      if (squaresToMoveY > 0) {
-        const squaresLeft = 7 - (fromY - 2)
+      const direction = squaresToMoveY > 0 ? -1 : 1
+      const squaresToCheck = squaresToMoveY > 0 ? 4 : 3
 
-        for (let i = 1; i < squaresLeft; i++) {
-          if (i + 1 === squaresLeft) {
-            if (board[fromX][fromY - i].name !== PIECES.rook) return true
+      for (let i = 1; i <= squaresToCheck; i++) {
+        const intermediateY = fromY + i * direction
 
-            if (board[fromX][fromY - i].moveCount > 0) return true
-          } else if (board[fromX][fromY - i].name !== PIECES.empty) return true
-        }
-      } else if (squaresToMoveY < 0) {
-        const squaresRigth = 7 - (fromY - 1)
+        console.log(board[fromX][intermediateY].name, i, [fromX, intermediateY])
 
-        for (let i = 1; i < squaresRigth; i++) {
-          if (i + 1 === squaresRigth) {
-            if (board[fromX][fromY + i].name !== PIECES.rook) return true
+        if (i === squaresToCheck) {
+          if (board[fromX][intermediateY].name !== PIECES.rook) return true
 
-            if (board[fromX][fromY + i].moveCount > 0) return true
-          } else if (board[fromX][fromY + i].name !== PIECES.empty) return true
+          if (board[fromX][intermediateY].moveCount > 0) return true
+        } else {
+          if (board[fromX][intermediateY].name !== PIECES.empty) return true
+
+          if (board[fromX][intermediateY].name === PIECES.empty) {
+            const canMove = board.some((row) =>
+              row.some(
+                (piece) =>
+                  piece.color !== this.color && piece.canMovePieceTo([fromX, intermediateY], board, lastMovedPiece)
+              )
+            )
+
+            if (canMove) return true
+          }
         }
       }
     }
