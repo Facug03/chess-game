@@ -5,17 +5,22 @@
   "author": "Facundo Gonzalez",
   "license": "ISC",
   "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:backend": "npm run dev --workspace backend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "7.12.0",
     "@typescript-eslint/parser": "7.12.0",
+    "concurrently": "^8.2.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard": "17.1.0",
     "prettier": "3.3.0"
   },
   "workspaces": [
+    "backend",
     "frontend"
   ]
 }
