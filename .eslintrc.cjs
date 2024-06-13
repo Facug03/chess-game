@@ -10,5 +10,6 @@ module.exports = {
     'no-eval': 'off',
     'no-undef': 'off',
     'no-use-before-define': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 }
