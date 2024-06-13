@@ -12,11 +12,11 @@
     "@types/cors": "2.8.17",
     "@types/express": "4.17.21",
     "@types/node": "20.14.2",
-    "pino-pretty": "^11.2.1",
+    "pino-pretty": "11.2.1",
     "rimraf": "5.0.7",
     "ts-node": "10.9.2",
     "tsup": "8.1.0",
-    "tsx": "^4.15.2",
+    "tsx": "4.15.2",
     "typescript": "5.4.5"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "express-rate-limit": "7.3.1",
     "helmet": "7.1.0",
     "http-status-codes": "2.3.0",
+    "js-chess-engine": "1.0.2",
     "pino": "9.2.0",
     "pino-http": "^10.1.0",
     "zod": "3.23.8"
