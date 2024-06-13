@@ -4,7 +4,7 @@ import { ZodError, ZodSchema } from 'zod'
 
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse'
 
-export const handleServiceResponse = (serviceResponse: ServiceResponse<null>, response: Response) => {
+export const handleServiceResponse = (serviceResponse: ServiceResponse<any>, response: Response) => {
   return response.status(serviceResponse.statusCode).send(serviceResponse)
 }
 
