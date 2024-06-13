@@ -25,3 +25,5 @@ export type ChessBoard = Piece[][]
 export type Movements = { from: Piece; to: Piece }[][]
 
 export type FinishGame = 'checkmate' | 'stalemate'
+
+export type MoveType = 'normal' | 'promotion' | 'castling' | 'enPassant'
