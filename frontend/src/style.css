@@ -10,14 +10,93 @@
   --green: #739552;
 }
 
-body {
+main {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+#chess-app {
+  position: relative;
+}
+
+#chess-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #131313;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
+#chess-mode h2 {
+  margin: 0px;
+}
+
+#chess-mode label h3 {
+  display: inline;
+}
+
+#chess-mode label p {
+  display: inline;
+}
+
+#chess-mode h4 {
+  margin: 0px;
+  margin-top: 14px;
+}
+
+.padding-left {
+  padding-left: 12px;
+}
+
+label p {
+  font-size: 15px;
+}
+
+input[type='radio'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  margin: 0;
+
+  font: inherit;
+  color: currentColor;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid currentColor;
+  border-radius: 50%;
+  transform: translateY(-1.2px);
+  display: inline-flex;
   justify-content: center;
   align-items: center;
 }
 
-main {
-  position: relative;
+input[type='radio']::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 16px 16px var(--green);
+}
+
+input[type='radio']:checked::before {
+  transform: scale(1);
+}
+
+.bot-radio {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.bot-radio::before {
+  width: 7px !important;
+  height: 7px !important;
+  box-shadow: inset 8px 8px var(--green);
 }
 
 #board {
@@ -179,7 +258,7 @@ main {
   transform: translate(-50%, -50%);
   max-width: 300px;
   padding: 24px 32px;
-  background-color:  #242424;
+  background-color: #242424;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -213,11 +292,4 @@ main {
   @media (min-width: 640px) {
     font-size: 18px;
   }
-}
-
-.dragging {
-  opacity: 1;
-  cursor: grabbing;
-  background-color: transparent;
-  
 }
