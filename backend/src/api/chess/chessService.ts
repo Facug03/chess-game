@@ -15,7 +15,7 @@ export const chessService = {
 
       return new ServiceResponse<Chess>(
         ResponseStatus.Success,
-        'Users found',
+        'Move calculated',
         {
           depth,
           fen: newFen,
