@@ -9,7 +9,7 @@ export function Square({ piece }: Props): string {
   const [x, y] = piece.position
   const isEven = (x + 1) % 2 === 0 ? 0 : 1
 
-  return `<div style="background-image: url('${piece.image}'); ${config.PROD ? '' : 'position: relative;'}" class="${
+  return `<div draggable="true" style="background-image: url('${piece.image}'); ${config.PROD ? '' : 'position: relative;'}" class="${
     (y + 1) % 2 === isEven ? 'grey' : 'green'
   } square" data-color="${piece.color}" data-xy="${x}-${y}">${Debug({ piece })}</div>`
 }
