@@ -8,16 +8,19 @@ import { Queen } from './pieces/Queen'
 import { Rook } from './pieces/Rook'
 import { Player } from './player/Player'
 import { getPieceClass } from '../consts/getPieceClass'
+import { fenName } from '../consts/fen'
+import { POSITIONS_MAP_X, POSITIONS_MAP_Y } from '../consts/positionsMap'
 
 export class Chess {
   public board: ChessBoard
+  public state: 'playing' | 'finished' = 'playing'
   private players: [Player, Player]
   public currentPlayer: Color
   private lastMovedPiece: Piece | null = null
   public reverse = false
   private movements: Movements = []
   private actualMovement = 0
-  public state: 'playing' | 'finished' = 'playing'
+  private fiftyMoveRule = 0
 
   constructor() {
     this.board = Array(8)
@@ -188,6 +191,7 @@ export class Chess {
 
     if (changePosition) {
       piece.moveCount += 1
+      this.calculateFiftyMoveRule(position, moveTo)
     }
 
     if (promotePawn) {
@@ -234,7 +238,7 @@ export class Chess {
     [toX, toY]: PiecePosition,
     board: ChessBoard
   ): (pieceName: PieceName) => void {
-    let piece = this.board[fromX][fromY]
+    const piece = this.board[fromX][fromY]
 
     return (pieceName: PieceName) => {
       const newPiece = new getPieceClass[pieceName](
@@ -243,19 +247,32 @@ export class Chess {
         `/assets/pieces/${this.currentPlayer}/${pieceName}.png`,
         piece.moveCount
       )
-      this.movements.push([
-        {
-          from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-          to: board[toX][toY],
-        },
-      ])
-      piece = newPiece
-
-      board[toX][toY] = piece
+      // this.movements.push([
+      //   {
+      //     from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
+      //     to: board[toX][toY],
+      //   },
+      // ])
+      board[toX][toY] = newPiece
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
 
-      piece.setPosition([toX, toY])
-      this.lastMovedPiece = piece
+      this.movements.push([
+        {
+          from: piece,
+          to: board[toX][toY],
+        },
+        {
+          from: new Empty('empty', [toX, toY], '', 0),
+          to: newPiece,
+        },
+      ])
+      console.log(board[toX][toY], board[fromX][fromY], {
+        board,
+        thisBoard: this.board,
+      })
+
+      newPiece.setPosition([toX, toY])
+      this.lastMovedPiece = newPiece
       this.changePlayer()
     }
   }
@@ -320,6 +337,50 @@ export class Chess {
 
         board[toX][toY + 1] = board[toX][0]
         board[toX][0] = new Empty('empty', [toX, 0], '', 0)
+      }
+    } else {
+      if (fromY > toY) {
+        if (changePosition) {
+          this.movements[this.movements.length - 1].push({
+            from: new getPieceClass[board[toX][0].name](
+              board[toX][0].color,
+              [toX, 0],
+              board[toX][0].image,
+              board[toX][0].moveCount
+            ),
+            to: new getPieceClass[board[toX][toY + 1].name](
+              board[toX][toY + 1].color,
+              [toX, toY + 1],
+              board[toX][toY + 1].image,
+              board[toX][toY + 1].moveCount
+            ),
+          })
+          board[toX][0].setPosition([toX, toY + 1])
+        }
+
+        board[toX][toY + 1] = board[toX][0]
+        board[toX][0] = new Empty('empty', [toX, 0], '', 0)
+      } else {
+        if (changePosition) {
+          this.movements[this.movements.length - 1].push({
+            from: new getPieceClass[board[toX][7].name](
+              board[toX][7].color,
+              [toX, 7],
+              board[toX][7].image,
+              board[toX][7].moveCount
+            ),
+            to: new getPieceClass[board[toX][toY - 1].name](
+              board[toX][toY - 1].color,
+              [toX, toY - 1],
+              board[toX][toY - 1].image,
+              board[toX][toY - 1].moveCount
+            ),
+          })
+          board[toX][7].setPosition([toX, toY - 1])
+        }
+
+        board[toX][toY - 1] = board[toX][7]
+        board[toX][7] = new Empty('empty', [toX, 7], '', 0)
       }
     }
   }
@@ -434,6 +495,7 @@ export class Chess {
     this.movements = []
     this.actualMovement = 0
     this.state = 'playing'
+    this.fiftyMoveRule = 0
   }
 
   public undo() {
@@ -446,6 +508,8 @@ export class Chess {
     for (const movement of lastMovements) {
       const [fromX, fromY] = movement.from.position
       const [toX, toY] = movement.to.position
+
+      console.log({ movement })
 
       if (lastMovements.indexOf(movement) === 0 && this.movements[this.actualMovement - 2]) {
         const movementBefore = this.movements[this.actualMovement - 2]
@@ -494,6 +558,8 @@ export class Chess {
       const [fromX, fromY] = movement.from.position
       const [toX, toY] = movement.to.position
 
+      console.log(movement)
+
       if (fromX === toX && fromY === toY) {
         this.board[toX][toY] = new getPieceClass[movement.to.name](
           movement.to.color,
@@ -521,5 +587,114 @@ export class Chess {
 
     this.actualMovement += 1
     this.changePlayer(this.actualMovement % 2 === 0 ? 'white' : 'black')
+  }
+
+  public getFen() {
+    let fen = ''
+
+    this.board.forEach((row, index) => {
+      let emptyCount = 0
+
+      for (const piece of row) {
+        if (piece.name === 'empty') {
+          emptyCount++
+          continue
+        }
+
+        if (emptyCount > 0) {
+          fen += emptyCount
+          emptyCount = 0
+        }
+
+        fen += piece.color === 'white' ? fenName[piece.name].toUpperCase() : fenName[piece.name]
+      }
+
+      if (emptyCount > 0) {
+        fen += emptyCount
+      }
+
+      if (index !== 7) fen += '/'
+    })
+
+    const enPassant = this.enPassantFen()
+    const castle = this.castleFen()
+    fen += ` ${this.currentPlayer[0]} ${castle} ${enPassant} ${this.fiftyMoveRule} ${Math.floor(this.actualMovement / 2 + 1)}`
+
+    return fen
+  }
+
+  private castleFen(): string {
+    let fenCastle = ''
+
+    const kingWhite = this.board[7][4]
+    const kingBlack = this.board[0][4]
+    const rookWhiteShort = this.board[7][7]
+    const rookWhiteLong = this.board[7][0]
+    const rookBlackShort = this.board[0][0]
+    const rookBlackLong = this.board[0][7]
+
+    if (kingWhite.moveCount > 0 && kingBlack.moveCount > 0) {
+      fenCastle = '-'
+      return fenCastle
+    }
+
+    if (kingWhite.moveCount === 0) {
+      if (rookWhiteShort.moveCount === 0) {
+        fenCastle += 'K'
+      }
+
+      if (rookWhiteLong.moveCount === 0) {
+        fenCastle += 'Q'
+      }
+    }
+
+    if (kingBlack.moveCount === 0) {
+      if (rookBlackShort.moveCount === 0) {
+        fenCastle += 'k'
+      }
+
+      if (rookBlackLong.moveCount === 0) {
+        fenCastle += 'q'
+      }
+    }
+
+    return fenCastle
+  }
+
+  private enPassantFen(): string {
+    if (this.lastMovedPiece?.name !== 'pawn') return '-'
+
+    if (this.lastMovedPiece.moveCount !== 1) return '-'
+
+    const [x, y] = this.lastMovedPiece.position
+
+    if (this.lastMovedPiece.color === 'white' && x === 4) {
+      return `${POSITIONS_MAP_Y[y]}${POSITIONS_MAP_X[x + 1]}`
+    }
+
+    if (this.lastMovedPiece.color === 'black' && x === 3) {
+      return `${POSITIONS_MAP_Y[y]}${POSITIONS_MAP_X[x - 1]}`
+    }
+
+    return '-'
+  }
+
+  private calculateFiftyMoveRule(from: PiecePosition, to: PiecePosition) {
+    const [fromX, fromY] = from
+    const [toX, toY] = to
+    const movedPiece = this.board[fromX][fromY]
+    const takenPiece = this.board[toX][toY]
+
+    if (movedPiece.name === 'pawn') {
+      this.fiftyMoveRule = 0
+      return
+    }
+
+    if (takenPiece.name !== 'empty') {
+      this.fiftyMoveRule = 0
+      return
+    }
+
+    this.fiftyMoveRule += 1
   }
 }
