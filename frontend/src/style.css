@@ -214,3 +214,10 @@ main {
     font-size: 18px;
   }
 }
+
+.dragging {
+  opacity: 1;
+  cursor: grabbing;
+  background-color: transparent;
+  
+}
