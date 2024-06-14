@@ -3,11 +3,15 @@ import { Color, FinishGame, PiecePosition, PieceName } from './chess/interface'
 import { Square } from './ui/Square'
 import { Gameover } from './ui/Gameover'
 import { Promote } from './ui/Promote'
+import { Difficulty, Mode } from './types'
 import './style.css'
 
 const chess = new Chess()
 
 let $pieceSelected: HTMLElement | null = null
+let mode: Mode = 'bot'
+let color: Color = 'white'
+let difficulty: Difficulty = 2
 const $turn = document.getElementById('turn') as HTMLHeadingElement
 
 initGame()
@@ -15,6 +19,7 @@ initGame()
 function initGame() {
   printBoard()
   options()
+  playMode()
 }
 
 function printBoard() {
@@ -49,6 +54,8 @@ function gameLoop() {
   $pieces.forEach(($pieceElement) => {
     if (chess.state !== 'playing') return
 
+    if (mode === 'bot' && $pieceElement.dataset.color !== color && $pieceElement.dataset.color !== 'empty') return
+
     removePromotePawn()
 
     $pieceElement.addEventListener('click', () => {
@@ -58,11 +65,11 @@ function gameLoop() {
         return
       }
 
-      selectPiece($pieceElement)
+      selectPiece($pieceElement, 'click')
     })
 
     $pieceElement.addEventListener('dragstart', () => {
-      selectPiece($pieceElement)
+      selectPiece($pieceElement, 'dragstart')
     })
 
     $pieceElement.addEventListener('dragover', (e) => {
@@ -124,14 +131,14 @@ function movePiece($from: HTMLElement, $to: HTMLElement) {
   }
 }
 
-function selectPiece($pieceElement: HTMLElement) {
+function selectPiece($pieceElement: HTMLElement, type: 'click' | 'dragstart') {
   if ($pieceElement.dataset.color !== chess.currentPlayer || !$pieceElement.dataset.xy) return
 
   if ($pieceSelected) {
     removeColorClass($pieceSelected)
     remodeAllGuideLines()
 
-    if ($pieceElement === $pieceSelected) {
+    if ($pieceElement === $pieceSelected && type === 'click') {
       $pieceSelected = null
 
       return
@@ -246,5 +253,36 @@ function gameOver(type: FinishGame, win: Color) {
 
   $restart.addEventListener('click', () => {
     resetAndPrintBoard()
+  })
+}
+
+function playMode() {
+  const $modes = document.querySelectorAll('input[name="mode"]')
+  const $color = document.querySelectorAll('input[name="color"]')
+  const $difficulty = document.querySelectorAll('input[name="difficulty"]')
+
+  $modes.forEach(($mode) => {
+    $mode.addEventListener('click', (e) => {
+      const target = e.target as HTMLInputElement
+      mode = (target.value as Mode) ?? 'bot'
+
+      gameLoop()
+    })
+  })
+
+  $color.forEach(($color) => {
+    $color.addEventListener('click', (e) => {
+      const target = e.target as HTMLInputElement
+      color = (target.value as Color) ?? 'white'
+
+      gameLoop()
+    })
+  })
+
+  $difficulty.forEach(($difficulty) => {
+    $difficulty.addEventListener('click', (e) => {
+      const target = e.target as HTMLInputElement
+      difficulty = (Number(target.value) as Difficulty) ?? 2
+    })
   })
 }
