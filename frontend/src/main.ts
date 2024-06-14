@@ -47,92 +47,117 @@ function gameLoop() {
   const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
 
   $pieces.forEach(($pieceElement) => {
+    if (chess.state !== 'playing') return
+
+    removePromotePawn()
+
     $pieceElement.addEventListener('click', () => {
-      if (chess.state !== 'playing') return
-
-      removePromotePawn()
-
       if ($pieceElement.dataset.color !== chess.currentPlayer && $pieceSelected !== $pieceElement && $pieceSelected) {
-        if (!$pieceElement.dataset.xy || !$pieceSelected.dataset.xy) return
-
-        const [fromX, fromY] = $pieceSelected.dataset.xy.split('-').map((data) => Number(data))
-        const [toX, toY] = $pieceElement.dataset.xy.split('-').map((data) => Number(data))
-
-        const moveMade = chess.makeMove([fromX, fromY], [toX, toY])
-
-        if (!moveMade.moved) {
-          removeColorClass($pieceSelected)
-          $pieceSelected = null
-          remodeAllGuideLines()
-          return
-        }
-
-        printBoard()
-        highlightLastMovement([fromX, fromY], [toX, toY])
-
-        if (moveMade.result) {
-          gameOver(moveMade.result, chess.currentPlayer === 'white' ? 'black' : 'white')
-          return
-        }
-
-        const callBackMove = moveMade?.callBack
-
-        if (callBackMove) {
-          const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`)
-          if (!$toElement) return
-          $toElement.innerHTML = Promote({ color: chess.currentPlayer })
-          const $promoteElement = [...document.querySelectorAll('.promote')] as HTMLDivElement[]
-          if (!$promoteElement) return
-          for (const $element of $promoteElement) {
-            $element.addEventListener('click', (e) => {
-              e.stopPropagation()
-              const pieceName = $element.dataset.piece as PieceName
-
-              if (!pieceName) return
-
-              callBackMove(pieceName)
-              removePromotePawn()
-            })
-          }
-        }
+        movePiece($pieceSelected, $pieceElement)
 
         return
       }
 
-      if ($pieceElement.dataset.color !== chess.currentPlayer || !$pieceElement.dataset.xy) return
+      selectPiece($pieceElement)
+    })
 
-      if ($pieceSelected) {
-        removeColorClass($pieceSelected)
-        remodeAllGuideLines()
+    $pieceElement.addEventListener('dragstart', () => {
+      selectPiece($pieceElement)
+    })
 
-        if ($pieceElement === $pieceSelected) {
-          $pieceSelected = null
+    $pieceElement.addEventListener('dragover', (e) => {
+      e.preventDefault()
+    })
 
-          return
-        }
-      }
+    $pieceElement.addEventListener('drop', (e) => {
+      e.preventDefault()
 
-      $pieceSelected = $pieceElement
-      addColorClass($pieceSelected)
-      const position = $pieceElement.dataset.xy.split('-').map((data) => Number(data)) as PiecePosition
-      const validMoves = chess.getAllPossibleMoves(position)
-
-      for (const move of validMoves) {
-        const [x, y] = move
-
-        const $element = document.querySelector(`.square[data-xy="${x}-${y}"]`) as HTMLElement
-
-        if (!$element) continue
-
-        if ($element.dataset.color !== 'empty') {
-          $element.innerHTML = `<div class="captureGuideLine"></div>`
-          continue
-        }
-
-        $element.innerHTML = `<div class="guideLine"></div>`
+      if ($pieceElement.dataset.color !== chess.currentPlayer && $pieceSelected !== $pieceElement && $pieceSelected) {
+        movePiece($pieceSelected, $pieceElement)
       }
     })
   })
+}
+
+function movePiece($from: HTMLElement, $to: HTMLElement) {
+  if (!$from.dataset.xy || !$to.dataset.xy) return
+
+  const [fromX, fromY] = $from.dataset.xy.split('-').map((data) => Number(data))
+  const [toX, toY] = $to.dataset.xy.split('-').map((data) => Number(data))
+
+  const moveMade = chess.makeMove([fromX, fromY], [toX, toY])
+
+  if (!moveMade.moved) {
+    removeColorClass($pieceSelected)
+    $pieceSelected = null
+    remodeAllGuideLines()
+    return
+  }
+
+  printBoard()
+  highlightLastMovement([fromX, fromY], [toX, toY])
+
+  if (moveMade.result) {
+    gameOver(moveMade.result, chess.currentPlayer === 'white' ? 'black' : 'white')
+    return
+  }
+
+  const callBackMove = moveMade?.callBack
+
+  if (callBackMove) {
+    const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`)
+    if (!$toElement) return
+    $toElement.innerHTML = Promote({ color: chess.currentPlayer })
+    const $promoteElement = [...document.querySelectorAll('.promote')] as HTMLDivElement[]
+    if (!$promoteElement) return
+    for (const $element of $promoteElement) {
+      $element.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const pieceName = $element.dataset.piece as PieceName
+
+        if (!pieceName) return
+
+        callBackMove(pieceName)
+        removePromotePawn()
+      })
+    }
+  }
+}
+
+function selectPiece($pieceElement: HTMLElement) {
+  if ($pieceElement.dataset.color !== chess.currentPlayer || !$pieceElement.dataset.xy) return
+
+  if ($pieceSelected) {
+    removeColorClass($pieceSelected)
+    remodeAllGuideLines()
+
+    if ($pieceElement === $pieceSelected) {
+      $pieceSelected = null
+
+      return
+    }
+  }
+
+  $pieceSelected = $pieceElement
+  addColorClass($pieceSelected)
+  const position = $pieceElement.dataset.xy.split('-').map((data) => Number(data)) as PiecePosition
+
+  const validMoves = chess.getAllPossibleMoves(position)
+
+  for (const move of validMoves) {
+    const [x, y] = move
+
+    const $element = document.querySelector(`.square[data-xy="${x}-${y}"]`) as HTMLElement
+
+    if (!$element) continue
+
+    if ($element.dataset.color !== 'empty') {
+      $element.innerHTML = `<div class="captureGuideLine"></div>`
+      continue
+    }
+
+    $element.innerHTML = `<div class="guideLine"></div>`
+  }
 }
 
 function resetAndPrintBoard() {
