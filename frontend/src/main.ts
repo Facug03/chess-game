@@ -5,6 +5,7 @@ import { Gameover } from './ui/Gameover'
 import { Promote } from './ui/Promote'
 import { Difficulty, Mode } from './types'
 import './style.css'
+import { getAiMove } from './services/getAiMove'
 
 const chess = new Chess()
 
@@ -51,10 +52,10 @@ function printBoard() {
 function gameLoop() {
   const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
 
-  $pieces.forEach(($pieceElement) => {
+  $pieces.forEach(async ($pieceElement) => {
     if (chess.state !== 'playing') return
 
-    if (mode === 'bot' && $pieceElement.dataset.color !== color && $pieceElement.dataset.color !== 'empty') return
+    // if (mode === 'bot' && $pieceElement.dataset.color !== color && $pieceElement.dataset.color !== 'empty') return
 
     removePromotePawn()
 
@@ -86,7 +87,7 @@ function gameLoop() {
   })
 }
 
-function movePiece($from: HTMLElement, $to: HTMLElement) {
+async function movePiece($from: HTMLElement, $to: HTMLElement) {
   if (!$from.dataset.xy || !$to.dataset.xy) return
 
   const [fromX, fromY] = $from.dataset.xy.split('-').map((data) => Number(data))
@@ -113,7 +114,9 @@ function movePiece($from: HTMLElement, $to: HTMLElement) {
 
   if (callBackMove) {
     const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`)
+
     if (!$toElement) return
+
     $toElement.innerHTML = Promote({ color: chess.currentPlayer })
     const $promoteElement = [...document.querySelectorAll('.promote')] as HTMLDivElement[]
     if (!$promoteElement) return
@@ -124,10 +127,31 @@ function movePiece($from: HTMLElement, $to: HTMLElement) {
 
         if (!pieceName) return
 
+        console.log('xd', pieceName)
         callBackMove(pieceName)
         removePromotePawn()
+        printBoard()
       })
     }
+  }
+
+  if (mode === 'bot' && color !== chess.currentPlayer) {
+    const [error, res] = await getAiMove(chess.getFen(), difficulty)
+
+    if (error) {
+      console.error(error)
+      return
+    }
+    const { from, to } = res
+    console.log(from, to)
+    const $fromElement = document.querySelector(`[data-xy="${from[0]}-${from[1]}"]`) as HTMLElement
+    const $toElement = document.querySelector(`[data-xy="${to[0]}-${to[1]}"]`) as HTMLElement
+
+    if (!$fromElement || !$toElement) return
+
+    console.log($fromElement, $toElement)
+
+    movePiece($fromElement, $toElement)
   }
 }
 
