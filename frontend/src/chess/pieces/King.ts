@@ -1,5 +1,5 @@
 import { PIECES } from '../../consts/pieces'
-import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
+import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../interface'
 import { isSameColor } from '../../utils/isPieceSameColor'
 
 export class King implements Piece {
@@ -69,8 +69,6 @@ export class King implements Piece {
 
       for (let i = 1; i <= squaresToCheck; i++) {
         const intermediateY = fromY + i * direction
-
-        console.log(board[fromX][intermediateY].name, i, [fromX, intermediateY])
 
         if (i === squaresToCheck) {
           if (board[fromX][intermediateY].name !== PIECES.rook) return true
