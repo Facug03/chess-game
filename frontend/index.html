@@ -7,88 +7,147 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    <main id="app">
-      <h3 id="turn">TURN: WHITE</h3>
-      <section id="board"></section>
-      <section class="options">
-        <button class="button" id="chess-reverse">
-          <svg class="icon" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
-            <g stroke-width="0"></g>
-            <g stroke-linecap="round" stroke-linejoin="round"></g>
-            <g>
-              <g
-                fill="none"
-                fill-rule="evenodd"
-                stroke="#b3b3b3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                transform="translate(3 3)"
-              >
-                <path d="m6.5 6.5-4 4 4 4"></path>
-                <path d="m14.5 10.5h-12"></path>
-                <path d="m8.5.5 4 4-4 4"></path>
-                <path d="m12.5 4.5h-12"></path>
+    <main>
+      <div id="chess-app">
+        <h3 id="turn">TURN: WHITE</h3>
+        <section id="board"></section>
+        <section class="options">
+          <button class="button" id="chess-reverse">
+            <svg class="icon" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
+              <g stroke-width="0"></g>
+              <g stroke-linecap="round" stroke-linejoin="round"></g>
+              <g>
+                <g
+                  fill="none"
+                  fill-rule="evenodd"
+                  stroke="#b3b3b3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  transform="translate(3 3)"
+                >
+                  <path d="m6.5 6.5-4 4 4 4"></path>
+                  <path d="m14.5 10.5h-12"></path>
+                  <path d="m8.5.5 4 4-4 4"></path>
+                  <path d="m12.5 4.5h-12"></path>
+                </g>
               </g>
-            </g>
-          </svg>
-        </button>
+            </svg>
+          </button>
 
-        <button class="button" id="chess-reset">
-          <svg class="icon" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
-            <g stroke-width="0"></g>
-            <g stroke-linecap="round" stroke-linejoin="round"></g>
-            <g>
-              <g
-                fill="none"
-                fill-rule="evenodd"
-                stroke="#b3b3b3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                transform="matrix(0 1 1 0 2.5 2.5)"
-              >
+          <button class="button" id="chess-reset">
+            <svg class="icon" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
+              <g stroke-width="0"></g>
+              <g stroke-linecap="round" stroke-linejoin="round"></g>
+              <g>
+                <g
+                  fill="none"
+                  fill-rule="evenodd"
+                  stroke="#b3b3b3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  transform="matrix(0 1 1 0 2.5 2.5)"
+                >
+                  <path
+                    d="m3.98652376 1.07807068c-2.38377179 1.38514556-3.98652376 3.96636605-3.98652376 6.92192932 0 4.418278 3.581722 8 8 8s8-3.581722 8-8-3.581722-8-8-8"
+                  ></path>
+                  <path d="m4 1v4h-4" transform="matrix(1 0 0 -1 0 6)"></path>
+                </g>
+              </g>
+            </svg>
+          </button>
+
+          <button class="button" id="chess-undo">
+            <svg class="icon-arrow" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
+              <g stroke-width="0"></g>
+              <g stroke-linecap="round" stroke-linejoin="round"></g>
+              <g>
                 <path
-                  d="m3.98652376 1.07807068c-2.38377179 1.38514556-3.98652376 3.96636605-3.98652376 6.92192932 0 4.418278 3.581722 8 8 8s8-3.581722 8-8-3.581722-8-8-8"
+                  d="m4.5 8.5-4-4 4-4"
+                  fill="none"
+                  stroke="#b3b3b3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  transform="translate(7 6)"
                 ></path>
-                <path d="m4 1v4h-4" transform="matrix(1 0 0 -1 0 6)"></path>
               </g>
-            </g>
-          </svg>
-        </button>
+            </svg>
+          </button>
 
-        <button class="button" id="chess-undo">
-          <svg class="icon-arrow" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
-            <g stroke-width="0"></g>
-            <g stroke-linecap="round" stroke-linejoin="round"></g>
-            <g>
-              <path
-                d="m4.5 8.5-4-4 4-4"
-                fill="none"
-                stroke="#b3b3b3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                transform="translate(7 6)"
-              ></path>
-            </g>
-          </svg>
-        </button>
+          <button class="button" id="chess-redo">
+            <svg class="icon-arrow" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
+              <g stroke-width="0"></g>
+              <g stroke-linecap="round" stroke-linejoin="round"></g>
+              <g>
+                <path
+                  d="m.5 8.5 4-4-4-4"
+                  fill="none"
+                  stroke="#b3b3b3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  transform="translate(9 6)"
+                ></path>
+              </g>
+            </svg>
+          </button>
+        </section>
+      </div>
 
-        <button class="button" id="chess-redo">
-          <svg class="icon-arrow" viewBox="0 0 21 21" fill="#b3b3b3" stroke="#b3b3b3" stroke-width="1.4">
-            <g stroke-width="0"></g>
-            <g stroke-linecap="round" stroke-linejoin="round"></g>
-            <g>
-              <path
-                d="m.5 8.5 4-4-4-4"
-                fill="none"
-                stroke="#b3b3b3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                transform="translate(9 6)"
-              ></path>
-            </g>
-          </svg>
-        </button>
-      </section>
+      <div id="chess-mode">
+        <h2>Play vs</h2>
+        <div>
+          <label>
+            <input name="mode" type="radio" value="bot" checked />
+            <h3>Bot</h3>
+          </label>
+
+          <div class="padding-left">
+            <h4>Play as</h4>
+
+            <label>
+              <input class="bot-radio" name="color" type="radio" value="white" checked />
+              <p>White</p>
+            </label>
+
+            <label>
+              <input class="bot-radio" name="color" type="radio" value="black" />
+              <p>Black</p>
+            </label>
+
+            <h4>Difficulty</h4>
+
+            <label>
+              <input class="bot-radio" name="difficulty" type="radio" value="1" />
+              <p>Easy</p>
+            </label>
+
+            <label>
+              <input class="bot-radio" name="difficulty" type="radio" value="2" checked />
+              <p>Medium</p>
+            </label>
+
+            <label>
+              <input class="bot-radio" name="difficulty" type="radio" value="3" />
+              <p>Hard</p>
+            </label>
+
+            <label>
+              <input class="bot-radio" name="difficulty" type="radio" value="4" />
+              <p>Advanced</p>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label>
+            <input name="mode" type="radio" value="local" />
+            <h3>Local</h3>
+          </label>
+
+          <div class="padding-left">
+            <p>Play locally with your friend or practice.</p>
+          </div>
+        </div>
+      </div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
