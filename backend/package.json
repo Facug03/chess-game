@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "build": "tsup",
-    "start": "node dist/src/netlify/functions/api.js"
+    "start": "node dist/src/index.js"
   },
   "devDependencies": {
     "@types/cors": "2.8.17",
@@ -18,7 +18,7 @@
     "typescript": "5.4.5"
   },
   "dependencies": {
-    "@netlify/functions": "^2.7.0",
+    "tsup": "8.1.0",
     "cors": "2.8.5",
     "dotenv": "16.4.5",
     "envalid": "8.0.0",
@@ -29,8 +29,6 @@
     "js-chess-engine": "1.0.2",
     "pino": "9.2.0",
     "pino-http": "10.1.0",
-    "serverless-http": "^3.2.0",
-    "tsup": "8.1.0",
     "zod": "3.23.8"
   }
 }
