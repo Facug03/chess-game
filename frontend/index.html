@@ -92,62 +92,66 @@
         </section>
       </div>
 
-      <div id="chess-mode">
-        <h2>Play vs</h2>
-        <div>
-          <label>
-            <input name="mode" type="radio" value="bot" checked />
-            <h3>Bot</h3>
-          </label>
-
-          <div class="padding-left">
-            <h4>Play as</h4>
-
-            <label>
-              <input class="bot-radio" name="color" type="radio" value="white" checked />
-              <p>White</p>
+      <form>
+        <fieldset id="chess-mode">
+          <legend>Play vs</legend>
+          <div>
+            <label class="label-mode">
+              <input name="mode" type="radio" value="bot" checked />
+              Bot
             </label>
-
-            <label>
-              <input class="bot-radio" name="color" type="radio" value="black" />
-              <p>Black</p>
-            </label>
-
-            <h4>Difficulty</h4>
-
-            <label>
-              <input class="bot-radio" name="difficulty" type="radio" value="1" />
-              <p>Easy</p>
-            </label>
-
-            <label>
-              <input class="bot-radio" name="difficulty" type="radio" value="2" checked />
-              <p>Medium</p>
-            </label>
-
-            <label>
-              <input class="bot-radio" name="difficulty" type="radio" value="3" />
-              <p>Hard</p>
-            </label>
-
-            <label>
-              <input class="bot-radio" name="difficulty" type="radio" value="4" />
-              <p>Advanced</p>
-            </label>
+  
+            <div class="padding-left">
+              <fieldset>
+                <legend>Play as</legend>
+                <label class="label-option">
+                  <input name="color" class="bot-radio" type="radio" value="white" checked />
+                  White
+                </label>
+  
+                <label class="label-option">
+                  <input name="color" class="bot-radio" type="radio" value="black" />
+                  Black
+                </label>
+              </fieldset>
+  
+              <fieldset>
+                <legend>Difficulty</legend>
+                <label class="label-option">
+                  <input name="difficulty" class="bot-radio" type="radio" value="1" />
+                  Easy
+                </label>
+  
+                <label class="label-option">
+                  <input name="difficulty" class="bot-radio" type="radio" value="2" checked />
+                  Medium
+                </label>
+  
+                <label class="label-option">
+                  <input name="difficulty" class="bot-radio" type="radio" value="3" />
+                  Hard
+                </label>
+  
+                <label class="label-option">
+                  <input name="difficulty" class="bot-radio" type="radio" value="4" />
+                  Advanced
+                </label>
+              </fieldset>
+            </div>
           </div>
-        </div>
-
-        <div>
-          <label>
-            <input name="mode" type="radio" value="local" />
-            <h3>Local</h3>
-          </label>
-
-          <div class="padding-left">
-            <p>Play locally with your friend or practice.</p>
+  
+          <div>
+            <label class="label-mode">
+              <input name="mode" type="radio" value="local" />
+              Local
+            </label>
+  
+            <div class="padding-left">
+              <p>Play locally with your friend or practice.</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </fieldset>
+      </form>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

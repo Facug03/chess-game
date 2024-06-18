@@ -1,5 +1,5 @@
 import { Chess } from './chess/Chess'
-import { Color, FinishGame, PiecePosition, PieceName } from './chess/interface'
+import { Color, FinishGame, PiecePosition, PieceName } from './chess/types'
 import { Square } from './ui/Square'
 import { Gameover } from './ui/Gameover'
 import { Promote } from './ui/Promote'
@@ -18,9 +18,9 @@ const $turn = document.getElementById('turn') as HTMLHeadingElement
 initGame()
 
 function initGame() {
+  playMode()
   printBoard()
   options()
-  playMode()
 }
 
 function printBoard() {
@@ -49,7 +49,26 @@ function printBoard() {
   gameLoop()
 }
 
-function gameLoop() {
+async function gameLoop() {
+  console.log({ difficulty, mode, color })
+
+  if (mode === 'bot' && color !== chess.currentPlayer) {
+    const [error, res] = await getAiMove(chess.getFen(), difficulty)
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    const { from, to } = res
+    const $fromElement = document.querySelector(`[data-xy="${from[0]}-${from[1]}"]`) as HTMLElement
+    const $toElement = document.querySelector(`[data-xy="${to[0]}-${to[1]}"]`) as HTMLElement
+
+    if (!$fromElement || !$toElement) return
+
+    movePiece($fromElement, $toElement)
+  }
+
   const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
 
   $pieces.forEach(async ($pieceElement) => {
@@ -127,31 +146,11 @@ async function movePiece($from: HTMLElement, $to: HTMLElement) {
 
         if (!pieceName) return
 
-        console.log('xd', pieceName)
         callBackMove(pieceName)
         removePromotePawn()
         printBoard()
       })
     }
-  }
-
-  if (mode === 'bot' && color !== chess.currentPlayer) {
-    const [error, res] = await getAiMove(chess.getFen(), difficulty)
-
-    if (error) {
-      console.error(error)
-      return
-    }
-    const { from, to } = res
-    console.log(from, to)
-    const $fromElement = document.querySelector(`[data-xy="${from[0]}-${from[1]}"]`) as HTMLElement
-    const $toElement = document.querySelector(`[data-xy="${to[0]}-${to[1]}"]`) as HTMLElement
-
-    if (!$fromElement || !$toElement) return
-
-    console.log($fromElement, $toElement)
-
-    movePiece($fromElement, $toElement)
   }
 }
 
@@ -281,11 +280,15 @@ function gameOver(type: FinishGame, win: Color) {
 }
 
 function playMode() {
-  const $modes = document.querySelectorAll('input[name="mode"]')
-  const $color = document.querySelectorAll('input[name="color"]')
-  const $difficulty = document.querySelectorAll('input[name="difficulty"]')
+  const $modes = document.querySelectorAll('input[name="mode"]') as NodeListOf<HTMLInputElement>
+  const $color = document.querySelectorAll('input[name="color"]') as NodeListOf<HTMLInputElement>
+  const $difficulty = document.querySelectorAll('input[name="difficulty"]') as NodeListOf<HTMLInputElement>
 
   $modes.forEach(($mode) => {
+    if ($mode.checked) {
+      mode = ($mode.value as Mode) ?? 'bot'
+    }
+
     $mode.addEventListener('click', (e) => {
       const target = e.target as HTMLInputElement
       mode = (target.value as Mode) ?? 'bot'
@@ -295,6 +298,10 @@ function playMode() {
   })
 
   $color.forEach(($color) => {
+    if ($color.checked) {
+      color = ($color.value as Color) ?? 'white'
+    }
+
     $color.addEventListener('click', (e) => {
       const target = e.target as HTMLInputElement
       color = (target.value as Color) ?? 'white'
@@ -304,9 +311,15 @@ function playMode() {
   })
 
   $difficulty.forEach(($difficulty) => {
+    if ($difficulty.checked) {
+      difficulty = (Number($difficulty.value) as Difficulty) ?? 2
+    }
+
     $difficulty.addEventListener('click', (e) => {
       const target = e.target as HTMLInputElement
       difficulty = (Number(target.value) as Difficulty) ?? 2
+
+      gameLoop()
     })
   })
 }

@@ -18,6 +18,16 @@ main {
   gap: 25px;
 }
 
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ebecd0;
+}
+
+p {
+  margin: 0;
+}
+
 #chess-app {
   position: relative;
 }
@@ -26,7 +36,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background-color: #131313;
+  background: #131313;
   border-radius: 8px;
   padding: 8px 16px;
 }
@@ -43,9 +53,28 @@ main {
   display: inline;
 }
 
-#chess-mode h4 {
-  margin: 0px;
-  margin-top: 14px;
+#chess-mode fieldset {
+  border: none;
+}
+
+#chess-mode legend {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+#chess-mode fieldset legend {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.label-mode {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.label-option {
+  font-size: 15px;
+  font-weight: 400;
 }
 
 .padding-left {
