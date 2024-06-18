@@ -1,7 +1,1 @@
-{
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "outputDirectory": "dist/src",
-  "version": 2,
-  "rewrites": [{ "source": "/(.*)", "destination": "dist/src" }]
-}
+{ "version": 2, "rewrites": [{ "source": "/(.*)", "destination": "/src" }] }
