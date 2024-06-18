@@ -14,11 +14,11 @@
     "@types/node": "20.14.2",
     "pino-pretty": "11.2.1",
     "ts-node": "10.9.2",
-    "tsup": "8.1.0",
     "tsx": "4.15.2",
     "typescript": "5.4.5"
   },
   "dependencies": {
+    "tsup": "8.1.0",
     "cors": "2.8.5",
     "dotenv": "16.4.5",
     "envalid": "8.0.0",
