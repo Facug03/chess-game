@@ -1,4 +1,4 @@
-import { ChessBoard, Color, FinishGame, MoveType, Movements, Piece, PiecePosition, PieceName } from './interface'
+import { ChessBoard, Color, FinishGame, MoveType, Movements, Piece, PiecePosition, PieceName } from './types'
 import { Bishop } from './pieces/Bishop'
 import { Empty } from './pieces/Empty'
 import { King } from './pieces/King'
@@ -247,12 +247,7 @@ export class Chess {
         `/assets/pieces/${this.currentPlayer}/${pieceName}.png`,
         piece.moveCount
       )
-      // this.movements.push([
-      //   {
-      //     from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-      //     to: board[toX][toY],
-      //   },
-      // ])
+
       board[toX][toY] = newPiece
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
 

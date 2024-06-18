@@ -1,5 +1,5 @@
 import { config } from '../config'
-import { Piece } from '../chess/interface'
+import { Piece } from '../chess/types'
 
 interface Props {
   piece: Piece

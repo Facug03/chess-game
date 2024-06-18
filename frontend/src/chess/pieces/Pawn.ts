@@ -1,5 +1,5 @@
 import { PIECES } from '../../consts/pieces'
-import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../../types'
+import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../types'
 import { isSameColor } from '../../utils/isPieceSameColor'
 
 export class Pawn implements Piece {

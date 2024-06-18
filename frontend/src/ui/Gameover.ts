@@ -1,4 +1,4 @@
-import { Color } from '../types'
+import { Color } from '../chess/types'
 
 interface CheckmateProps {
   type: 'checkmate'

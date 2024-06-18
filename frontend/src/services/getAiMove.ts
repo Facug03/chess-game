@@ -1,6 +1,6 @@
 import { Difficulty } from '../types'
 import { config } from '../config'
-import { PiecePosition } from '../chess/interface'
+import { PiecePosition } from '../chess/types'
 import { POSITIONS_MAP_X_REVERSE, POSITIONS_MAP_Y_REVERSE } from '../consts/positionsMap'
 
 export async function getAiMove(

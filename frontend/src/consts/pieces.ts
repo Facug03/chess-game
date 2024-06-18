@@ -1,4 +1,4 @@
-import { PieceName } from '../chess/interface'
+import { PieceName } from '../chess/types'
 
 export const PIECES: Record<PieceName, PieceName> = {
   rook: 'rook',
