@@ -26,8 +26,8 @@ app.use(express.json())
 app.use(requestLogger)
 
 // Routes
-app.use('/health-check', healthCheckRouter)
-app.use('/chess', chessRouter)
+app.use('../netlify/functions/api/health-check', healthCheckRouter)
+app.use('../netlify/functions/api/chess', chessRouter)
 
 // Error handlers
 app.use(errorHandler())

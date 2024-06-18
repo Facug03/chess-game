@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['./src'],
+  entry: ['./src', './netlify/functions'],
   clean: true,
   outDir: 'dist/src',
   format: 'esm',
