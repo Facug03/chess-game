@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "build": "tsup",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "vercel-build": "echo build"
   },
   "devDependencies": {
     "@types/cors": "2.8.17",
