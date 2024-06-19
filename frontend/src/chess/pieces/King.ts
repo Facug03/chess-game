@@ -77,7 +77,7 @@ export class King implements Piece {
         } else {
           if (board[fromX][intermediateY].name !== PIECES.empty) return true
 
-          if (board[fromX][intermediateY].name === PIECES.empty) {
+          if (board[fromX][intermediateY].name === PIECES.empty && i <= 2) {
             const canMove = board.some((row) =>
               row.some(
                 (piece) =>

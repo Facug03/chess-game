@@ -18,8 +18,8 @@ export class Chess {
   public currentPlayer: Color
   private lastMovedPiece: Piece | null = null
   public reverse = false
-  private movements: Movements = []
-  private actualMovement = 0
+  public movements: Movements = []
+  public actualMovement = 0
   private fiftyMoveRule = 0
 
   constructor() {
@@ -40,7 +40,7 @@ export class Chess {
     moved: boolean
     result: FinishGame | null
     type: MoveType | null
-    callBack?: (pieceName: PieceName) => void
+    callBack?: (pieceName: PieceName) => FinishGame | null
   } {
     const currentPiece = this.board[fromX][fromY]
     const canMove = currentPiece.canMovePieceTo([toX, toY], this.board, this.lastMovedPiece)
@@ -71,7 +71,9 @@ export class Chess {
     }
 
     const moveMade = this.movePiece([fromX, fromY], [toX, toY], this.board, true)
-    this.actualMovement += 1
+    if (!moveMade.callBackMove) {
+      this.actualMovement += 1
+    }
     const result = this.isCheckMateOrStealMate()
 
     if (result.isCheckMate) {
@@ -79,7 +81,7 @@ export class Chess {
       return {
         moved: true,
         result: 'checkmate',
-        type: 'normal',
+        type: moveMade.type,
       }
     }
 
@@ -88,14 +90,14 @@ export class Chess {
       return {
         moved: true,
         result: 'stalemate',
-        type: 'normal',
+        type: moveMade.type,
       }
     }
 
     return {
       moved: true,
       result: null,
-      type: 'normal',
+      type: moveMade.type,
       callBack: moveMade.callBackMove,
     }
   }
@@ -176,7 +178,7 @@ export class Chess {
     changePosition: boolean
   ): {
     type: MoveType
-    callBackMove?: (pieceName: PieceName) => void
+    callBackMove?: (pieceName: PieceName) => FinishGame | null
   } {
     const [fromX, fromY] = position
     const [toX, toY] = moveTo
@@ -237,38 +239,50 @@ export class Chess {
     [fromX, fromY]: PiecePosition,
     [toX, toY]: PiecePosition,
     board: ChessBoard
-  ): (pieceName: PieceName) => void {
+  ): (pieceName: PieceName) => FinishGame | null {
     const piece = this.board[fromX][fromY]
+    piece.moveCount -= 1
 
-    return (pieceName: PieceName) => {
+    return (pieceName: PieceName): FinishGame | null => {
       const newPiece = new getPieceClass[pieceName](
         this.currentPlayer,
         [toX, toY],
         `/assets/pieces/${this.currentPlayer}/${pieceName}.png`,
         piece.moveCount
       )
-
-      board[toX][toY] = newPiece
-      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
+      piece.moveCount += 1
 
       this.movements.push([
         {
           from: piece,
-          to: board[toX][toY],
+          to: newPiece,
         },
         {
-          from: new Empty('empty', [toX, toY], '', 0),
+          from: board[toX][toY],
           to: newPiece,
         },
       ])
-      console.log(board[toX][toY], board[fromX][fromY], {
-        board,
-        thisBoard: this.board,
-      })
+
+      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
+      board[toX][toY] = newPiece
 
       newPiece.setPosition([toX, toY])
       this.lastMovedPiece = newPiece
       this.changePlayer()
+      this.actualMovement += 1
+      newPiece.moveCount += 1
+
+      const result = this.isCheckMateOrStealMate()
+
+      if (result.isCheckMate) {
+        return 'checkmate'
+      }
+
+      if (result.isStealMate) {
+        return 'stalemate'
+      }
+
+      return null
     }
   }
 
@@ -498,6 +512,8 @@ export class Chess {
 
     const lastMovements = this.movements[this.actualMovement - 1]
 
+    console.log({ lastMovements })
+
     if (!lastMovements) return
 
     for (const movement of lastMovements) {
@@ -625,35 +641,30 @@ export class Chess {
     const kingBlack = this.board[0][4]
     const rookWhiteShort = this.board[7][7]
     const rookWhiteLong = this.board[7][0]
-    const rookBlackShort = this.board[0][0]
-    const rookBlackLong = this.board[0][7]
+    const rookBlackShort = this.board[0][7]
+    const rookBlackLong = this.board[0][0]
 
-    if (kingWhite.moveCount > 0 && kingBlack.moveCount > 0) {
-      fenCastle = '-'
-      return fenCastle
-    }
-
-    if (kingWhite.moveCount === 0) {
-      if (rookWhiteShort.moveCount === 0) {
+    if (kingWhite.moveCount === 0 && kingWhite.name === 'king' && kingWhite.color === 'white') {
+      if (rookWhiteShort.moveCount === 0 && rookWhiteShort.name === 'rook' && rookWhiteShort.color === 'white') {
         fenCastle += 'K'
       }
 
-      if (rookWhiteLong.moveCount === 0) {
+      if (rookWhiteLong.moveCount === 0 && rookWhiteLong.name === 'rook' && rookWhiteLong.color === 'white') {
         fenCastle += 'Q'
       }
     }
 
-    if (kingBlack.moveCount === 0) {
-      if (rookBlackShort.moveCount === 0) {
+    if (kingBlack.moveCount === 0 && kingBlack.name === 'king' && kingBlack.color === 'black') {
+      if (rookBlackShort.moveCount === 0 && rookBlackShort.name === 'rook' && rookBlackShort.color === 'black') {
         fenCastle += 'k'
       }
 
-      if (rookBlackLong.moveCount === 0) {
+      if (rookBlackLong.moveCount === 0 && rookBlackLong.name === 'rook' && rookBlackLong.color === 'black') {
         fenCastle += 'q'
       }
     }
 
-    return fenCastle
+    return fenCastle.length > 0 ? fenCastle : '-'
   }
 
   private enPassantFen(): string {

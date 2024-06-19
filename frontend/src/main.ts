@@ -4,8 +4,8 @@ import { Square } from './ui/Square'
 import { Gameover } from './ui/Gameover'
 import { Promote } from './ui/Promote'
 import { Difficulty, Mode } from './types'
-import './style.css'
 import { getAiMove } from './services/getAiMove'
+import './style.css'
 
 const chess = new Chess()
 
@@ -50,9 +50,20 @@ function printBoard() {
 }
 
 async function gameLoop() {
-  console.log({ difficulty, mode, color })
+  $pieceSelected = null
+  console.log({
+    mode,
+    color,
+    difficulty,
+    actualMovement: chess.actualMovement,
+    movements: chess.movements,
+    state: chess.state,
+    currentPlayer: chess.currentPlayer,
+  })
 
-  if (mode === 'bot' && color !== chess.currentPlayer) {
+  if (mode === 'bot' && color !== chess.currentPlayer && chess.state === 'playing') {
+    if (chess.movements.length !== chess.actualMovement) return
+
     const [error, res] = await getAiMove(chess.getFen(), difficulty)
 
     if (error) {
@@ -67,14 +78,14 @@ async function gameLoop() {
     if (!$fromElement || !$toElement) return
 
     movePiece($fromElement, $toElement)
+
+    return
   }
 
   const $pieces = [...document.querySelectorAll('.square')] as HTMLElement[]
 
-  $pieces.forEach(async ($pieceElement) => {
+  $pieces.forEach(($pieceElement) => {
     if (chess.state !== 'playing') return
-
-    // if (mode === 'bot' && $pieceElement.dataset.color !== color && $pieceElement.dataset.color !== 'empty') return
 
     removePromotePawn()
 
@@ -106,13 +117,15 @@ async function gameLoop() {
   })
 }
 
-async function movePiece($from: HTMLElement, $to: HTMLElement) {
+function movePiece($from: HTMLElement, $to: HTMLElement) {
   if (!$from.dataset.xy || !$to.dataset.xy) return
 
   const [fromX, fromY] = $from.dataset.xy.split('-').map((data) => Number(data))
   const [toX, toY] = $to.dataset.xy.split('-').map((data) => Number(data))
 
   const moveMade = chess.makeMove([fromX, fromY], [toX, toY])
+
+  console.log({ moveMade })
 
   if (!moveMade.moved) {
     removeColorClass($pieceSelected)
@@ -132,6 +145,13 @@ async function movePiece($from: HTMLElement, $to: HTMLElement) {
   const callBackMove = moveMade?.callBack
 
   if (callBackMove) {
+    if (mode === 'bot' && color !== chess.currentPlayer) {
+      callBackMove('queen')
+      removePromotePawn()
+      printBoard()
+      return
+    }
+
     const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`)
 
     if (!$toElement) return
@@ -146,15 +166,20 @@ async function movePiece($from: HTMLElement, $to: HTMLElement) {
 
         if (!pieceName) return
 
-        callBackMove(pieceName)
+        const result = callBackMove(pieceName)
         removePromotePawn()
         printBoard()
+
+        if (result) {
+          gameOver(result, chess.currentPlayer === 'white' ? 'black' : 'white')
+        }
       })
     }
   }
 }
 
 function selectPiece($pieceElement: HTMLElement, type: 'click' | 'dragstart') {
+  console.log({ $pieceElement, type, $pieceSelected })
   if ($pieceElement.dataset.color !== chess.currentPlayer || !$pieceElement.dataset.xy) return
 
   if ($pieceSelected) {
@@ -264,7 +289,7 @@ function highlightLastMovement(from: PiecePosition, move: PiecePosition) {
 }
 
 function gameOver(type: FinishGame, win: Color) {
-  const $app = document.getElementById('app')
+  const $app = document.getElementById('chess-app')
 
   if (!$app) return
 
@@ -293,7 +318,7 @@ function playMode() {
       const target = e.target as HTMLInputElement
       mode = (target.value as Mode) ?? 'bot'
 
-      gameLoop()
+      printBoard()
     })
   })
 
@@ -306,7 +331,7 @@ function playMode() {
       const target = e.target as HTMLInputElement
       color = (target.value as Color) ?? 'white'
 
-      gameLoop()
+      printBoard()
     })
   })
 
@@ -319,7 +344,7 @@ function playMode() {
       const target = e.target as HTMLInputElement
       difficulty = (Number(target.value) as Difficulty) ?? 2
 
-      gameLoop()
+      printBoard()
     })
   })
 }
