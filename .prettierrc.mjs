@@ -3,11 +3,11 @@ export default {
   printWidth: 120,
   semi: false,
   singleQuote: true,
-  quoteProps: "consistent",
+  quoteProps: 'as-needed',
   tabWidth: 2,
-  trailingComma: "es5",
+  trailingComma: 'none',
   useTabs: false,
-  endOfLine: "lf",
-  arrowParens: "always",
-  jsxSingleQuote: true,
-};
+  endOfLine: 'lf',
+  arrowParens: 'always',
+  jsxSingleQuote: true
+}
