@@ -70,11 +70,13 @@ p {
 .label-mode {
   font-size: 18px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .label-option {
   font-size: 15px;
   font-weight: 400;
+  cursor: pointer;
 }
 
 .padding-left {
