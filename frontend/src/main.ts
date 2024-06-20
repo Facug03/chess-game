@@ -1,10 +1,10 @@
-import { Chess } from './chess/Chess'
-import { Color, FinishGame, PiecePosition, PieceName } from './chess/types'
-import { Square } from './ui/Square'
-import { Gameover } from './ui/Gameover'
-import { Promote } from './ui/Promote'
-import { Difficulty, Mode } from './types'
-import { getAiMove } from './services/getAiMove'
+import { Chess } from '@lib/chess/Chess'
+import { Color, FinishGame, PiecePosition, PieceName } from '@lib/chess/types'
+import { Square } from '@src/ui/Square'
+import { Gameover } from '@src/ui/Gameover'
+import { Promote } from '@src/ui/Promote'
+import { Difficulty, Mode } from '@src/types'
+import { getAiMove } from '@src/services/getAiMove'
 import './style.css'
 
 const chess = new Chess()
@@ -58,7 +58,7 @@ async function gameLoop() {
     actualMovement: chess.actualMovement,
     movements: chess.movements,
     state: chess.state,
-    currentPlayer: chess.currentPlayer,
+    currentPlayer: chess.currentPlayer
   })
 
   if (mode === 'bot' && color !== chess.currentPlayer && chess.state === 'playing') {
@@ -207,11 +207,11 @@ function selectPiece($pieceElement: HTMLElement, type: 'click' | 'dragstart') {
     if (!$element) continue
 
     if ($element.dataset.color !== 'empty') {
-      $element.innerHTML = `<div class="captureGuideLine"></div>`
+      $element.innerHTML = '<div class="captureGuideLine"></div>'
       continue
     }
 
-    $element.innerHTML = `<div class="guideLine"></div>`
+    $element.innerHTML = '<div class="guideLine"></div>'
   }
 }
 

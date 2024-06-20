@@ -1,5 +1,5 @@
-import { PIECES } from '../consts/pieces'
-import { Color, PieceName } from '../chess/types'
+import { PIECES } from '@src/consts/pieces'
+import { Color, PieceName } from '@lib/chess/types'
 
 interface Props {
   color: Color

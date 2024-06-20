@@ -1,7 +1,7 @@
-import { Difficulty } from '../types'
-import { config } from '../config'
-import { PiecePosition } from '../chess/types'
-import { POSITIONS_MAP_X_REVERSE, POSITIONS_MAP_Y_REVERSE } from '../consts/positionsMap'
+import { POSITIONS_MAP_X_REVERSE, POSITIONS_MAP_Y_REVERSE } from '@src/consts/positionsMap'
+import { PiecePosition } from '@lib/chess/types'
+import { Difficulty } from '@src/types'
+import { config } from '@src/config'
 
 export async function getAiMove(
   fen: string,
@@ -12,16 +12,16 @@ export async function getAiMove(
     {
       from: PiecePosition
       to: PiecePosition
-    },
+    }
   ]
 > {
   try {
     const response = await fetch(`${config.BACK_URL}/chess/ai-move`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ fen, depth }),
+      body: JSON.stringify({ fen, depth })
     })
     const { responseObject } = (await response.json()) as {
       responseObject: {
@@ -36,11 +36,11 @@ export async function getAiMove(
 
     const from = [
       POSITIONS_MAP_X_REVERSE[responseObject.move.from[1]],
-      POSITIONS_MAP_Y_REVERSE[responseObject.move.from[0].toLowerCase()],
+      POSITIONS_MAP_Y_REVERSE[responseObject.move.from[0].toLowerCase()]
     ] as PiecePosition
     const to = [
       POSITIONS_MAP_X_REVERSE[responseObject.move.to[1]],
-      POSITIONS_MAP_Y_REVERSE[responseObject.move.to[0].toLowerCase()],
+      POSITIONS_MAP_Y_REVERSE[responseObject.move.to[0].toLowerCase()]
     ] as PiecePosition
 
     return [null, { from, to }]
