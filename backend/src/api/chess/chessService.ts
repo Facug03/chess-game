@@ -19,7 +19,7 @@ export const chessService = {
         {
           depth,
           fen: newFen,
-          move: { from, to },
+          move: { from, to }
         },
         StatusCodes.OK
       )
@@ -28,5 +28,5 @@ export const chessService = {
       logger.error(errorMessage)
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR)
     }
-  },
+  }
 }

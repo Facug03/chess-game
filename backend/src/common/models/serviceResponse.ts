@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export enum ResponseStatus {
   Success,
-  Failed,
+  Failed
 }
 
 export class ServiceResponse<T = null> {
@@ -24,5 +24,5 @@ export const ServiceResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
     success: z.boolean(),
     message: z.string(),
     responseObject: dataSchema.optional(),
-    statusCode: z.number(),
+    statusCode: z.number()
   })

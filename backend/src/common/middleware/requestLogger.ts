@@ -14,7 +14,7 @@ enum LogLevel {
   Info = 'info',
   Debug = 'debug',
   Trace = 'trace',
-  Silent = 'silent',
+  Silent = 'silent'
 }
 
 type PinoCustomProps = {
@@ -35,7 +35,7 @@ const requestLogger = (options?: Options): RequestHandler[] => {
     customReceivedMessage: (req) => `request received: ${req.method}`,
     customErrorMessage: (_req, res) => `request errored with status code: ${res.statusCode}`,
     customAttributeKeys,
-    ...options,
+    ...options
   }
   return [responseBodyMiddleware, pinoHttp(pinoOptions)]
 }
@@ -44,14 +44,14 @@ const customAttributeKeys: CustomAttributeKeys = {
   req: 'request',
   res: 'response',
   err: 'error',
-  responseTime: 'timeTaken',
+  responseTime: 'timeTaken'
 }
 
 const customProps = (req: Request, res: Response): PinoCustomProps => ({
   request: req,
   response: res,
   error: res.locals.err,
-  responseBody: res.locals.responseBody,
+  responseBody: res.locals.responseBody
 })
 
 const responseBodyMiddleware: RequestHandler = (_req, res, next) => {
