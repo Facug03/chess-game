@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test": "playwright test",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -11,6 +12,8 @@
     "format": "prettier --write src"
   },
   "devDependencies": {
+    "@playwright/test": "1.44.1",
+    "@types/node": "20.14.6",
     "typescript": "5.2.2",
     "vite": "5.2.0"
   }
