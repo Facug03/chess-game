@@ -10,7 +10,7 @@ export class HomePage {
   readonly redo = this.page.locator('#chess-redo')
 
   public async goto() {
-    await this.page.goto('http://localhost:5173/')
+    await this.page.goto('http://127.0.0.1:5173/')
   }
 
   public getPiece(position: number) {
