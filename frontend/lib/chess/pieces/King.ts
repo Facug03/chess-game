@@ -1,6 +1,6 @@
-import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../types'
-import { isSameColor } from '../../utils/isPieceSameColor'
+import { isSameColor } from '@src/utils/isPieceSameColor'
+import { PIECES } from '@src/consts/pieces'
 
 export class King implements Piece {
   public name: PieceName = PIECES.king
@@ -102,7 +102,7 @@ export class King implements Piece {
 
     return {
       squaresToMoveX,
-      squaresToMoveY,
+      squaresToMoveY
     }
   }
 }

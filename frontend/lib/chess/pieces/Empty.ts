@@ -1,5 +1,5 @@
-import { PIECES } from '../../consts/pieces'
 import { Color, Piece, PieceName, PiecePosition } from '../types'
+import { PIECES } from '@src/consts/pieces'
 
 export class Empty implements Piece {
   public name: PieceName = PIECES.empty

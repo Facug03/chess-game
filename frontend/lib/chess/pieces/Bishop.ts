@@ -1,9 +1,9 @@
-import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../types'
-import { isSameColor } from '../../utils/isPieceSameColor'
+import { PIECES } from '@src/consts/pieces'
+import { isSameColor } from '@src/utils/isPieceSameColor'
 
-export class Queen implements Piece {
-  public name: PieceName = PIECES.queen
+export class Bishop implements Piece {
+  public name: PieceName = PIECES.bishop
 
   constructor(
     public color: Color,
@@ -17,7 +17,7 @@ export class Queen implements Piece {
     this.moveCount = moveCount
   }
 
-  setPosition(position: PiecePosition): void {
+  setPosition(position: PiecePosition) {
     this.position = position
   }
 
@@ -28,7 +28,7 @@ export class Queen implements Piece {
       return false
     }
 
-    if (Math.abs(squaresToMoveX) !== Math.abs(squaresToMoveY) && squaresToMoveX !== 0 && squaresToMoveY !== 0) {
+    if (Math.abs(squaresToMoveX) !== Math.abs(squaresToMoveY)) {
       return false
     }
 
@@ -42,40 +42,6 @@ export class Queen implements Piece {
   checkColision(moveTo: PiecePosition, board: ChessBoard): boolean {
     const [fromX, fromY] = this.position
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
-
-    if (squaresToMoveX === 0 || squaresToMoveY === 0) {
-      if (squaresToMoveX !== 0) {
-        if (squaresToMoveX > 0) {
-          for (let i = 1; i < squaresToMoveX; i++) {
-            if (board[fromX - i][fromY].name !== PIECES.empty) {
-              return true
-            }
-          }
-        } else if (squaresToMoveX < 0) {
-          for (let i = 1; i < -squaresToMoveX; i++) {
-            if (board[fromX + i][fromY].name !== PIECES.empty) {
-              return true
-            }
-          }
-        }
-      }
-
-      if (squaresToMoveY !== 0) {
-        if (squaresToMoveY > 0) {
-          for (let i = 1; i < squaresToMoveY; i++) {
-            if (board[fromX][fromY - i].name !== PIECES.empty) {
-              return true
-            }
-          }
-        } else if (squaresToMoveY < 0) {
-          for (let i = 1; i < -squaresToMoveY; i++) {
-            if (board[fromX][fromY + i].name !== PIECES.empty) {
-              return true
-            }
-          }
-        }
-      }
-    }
 
     if (squaresToMoveX > 0) {
       if (squaresToMoveY > 0) {
@@ -120,7 +86,7 @@ export class Queen implements Piece {
 
     return {
       squaresToMoveX,
-      squaresToMoveY,
+      squaresToMoveY
     }
   }
 }

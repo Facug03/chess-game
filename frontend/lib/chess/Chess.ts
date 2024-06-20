@@ -7,9 +7,9 @@ import { Pawn } from './pieces/Pawn'
 import { Queen } from './pieces/Queen'
 import { Rook } from './pieces/Rook'
 import { Player } from './player/Player'
-import { getPieceClass } from '../consts/getPieceClass'
-import { fenName } from '../consts/fen'
-import { POSITIONS_MAP_X, POSITIONS_MAP_Y } from '../consts/positionsMap'
+import { getPieceClass } from '@src/consts/getPieceClass'
+import { fenName } from '@src/consts/fen'
+import { POSITIONS_MAP_X, POSITIONS_MAP_Y } from '@src/consts/positionsMap'
 
 export class Chess {
   public board: ChessBoard
@@ -49,7 +49,7 @@ export class Chess {
       return {
         moved: false,
         result: null,
-        type: null,
+        type: null
       }
     }
 
@@ -62,7 +62,7 @@ export class Chess {
       return {
         moved: false,
         result: null,
-        type: null,
+        type: null
       }
     }
 
@@ -81,7 +81,7 @@ export class Chess {
       return {
         moved: true,
         result: 'checkmate',
-        type: moveMade.type,
+        type: moveMade.type
       }
     }
 
@@ -90,7 +90,7 @@ export class Chess {
       return {
         moved: true,
         result: 'stalemate',
-        type: moveMade.type,
+        type: moveMade.type
       }
     }
 
@@ -98,7 +98,7 @@ export class Chess {
       moved: true,
       result: null,
       type: moveMade.type,
-      callBack: moveMade.callBackMove,
+      callBack: moveMade.callBackMove
     }
   }
 
@@ -202,7 +202,7 @@ export class Chess {
 
       return {
         type,
-        callBackMove,
+        callBackMove
       }
     } else if (enPassant) {
       this.moveEnPassant(position, moveTo, board, changePosition)
@@ -215,8 +215,8 @@ export class Chess {
         this.movements.push([
           {
             from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-            to: board[toX][toY],
-          },
+            to: board[toX][toY]
+          }
         ])
       }
 
@@ -231,7 +231,7 @@ export class Chess {
     }
 
     return {
-      type,
+      type
     }
   }
 
@@ -255,12 +255,12 @@ export class Chess {
       this.movements.push([
         {
           from: piece,
-          to: newPiece,
+          to: newPiece
         },
         {
           from: board[toX][toY],
-          to: newPiece,
-        },
+          to: newPiece
+        }
       ])
 
       board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
@@ -297,8 +297,8 @@ export class Chess {
     this.movements.push([
       {
         from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-        to: board[toX][toY],
-      },
+        to: board[toX][toY]
+      }
     ])
     board[toX][toY] = piece
     board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
@@ -318,7 +318,7 @@ export class Chess {
               [toX, toY - 1],
               board[toX][toY - 1].image,
               board[toX][toY - 1].moveCount
-            ),
+            )
           })
           board[toX][7].setPosition([toX, toY - 1])
         }
@@ -339,7 +339,7 @@ export class Chess {
               [toX, toY + 1],
               board[toX][toY + 1].image,
               board[toX][toY + 1].moveCount
-            ),
+            )
           })
           board[toX][0].setPosition([toX, toY + 1])
         }
@@ -362,7 +362,7 @@ export class Chess {
               [toX, toY + 1],
               board[toX][toY + 1].image,
               board[toX][toY + 1].moveCount
-            ),
+            )
           })
           board[toX][0].setPosition([toX, toY + 1])
         }
@@ -383,7 +383,7 @@ export class Chess {
               [toX, toY - 1],
               board[toX][toY - 1].image,
               board[toX][toY - 1].moveCount
-            ),
+            )
           })
           board[toX][7].setPosition([toX, toY - 1])
         }
@@ -407,7 +407,7 @@ export class Chess {
       this.movements.push([
         {
           from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-          to: board[toX][toY],
+          to: board[toX][toY]
         },
         {
           from: new getPieceClass[board[formatToX][toY].name](
@@ -416,8 +416,8 @@ export class Chess {
             board[formatToX][toY].image,
             board[formatToX][toY].moveCount
           ),
-          to: new Empty('empty', [formatToX, toY], '', 0),
-        },
+          to: new Empty('empty', [formatToX, toY], '', 0)
+        }
       ])
     }
 
@@ -449,7 +449,7 @@ export class Chess {
         if (validMoves.length > 0) {
           return {
             isCheckMate: false,
-            isStealMate: false,
+            isStealMate: false
           }
         }
       }
@@ -458,13 +458,13 @@ export class Chess {
     if (this.isKingInCheck(this.board, [currentPlayer])) {
       return {
         isCheckMate: true,
-        isStealMate: false,
+        isStealMate: false
       }
     }
 
     return {
       isCheckMate: false,
-      isStealMate: true,
+      isStealMate: true
     }
   }
 

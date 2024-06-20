@@ -1,9 +1,9 @@
-import { PIECES } from '../../consts/pieces'
 import { ChessBoard, Color, Piece, PieceName, PiecePosition } from '../types'
-import { isSameColor } from '../../utils/isPieceSameColor'
+import { isSameColor } from '@src/utils/isPieceSameColor'
+import { PIECES } from '@src/consts/pieces'
 
-export class Bishop implements Piece {
-  public name: PieceName = PIECES.bishop
+export class Rook implements Piece {
+  public name: PieceName = PIECES.rook
 
   constructor(
     public color: Color,
@@ -28,7 +28,7 @@ export class Bishop implements Piece {
       return false
     }
 
-    if (Math.abs(squaresToMoveX) !== Math.abs(squaresToMoveY)) {
+    if (squaresToMoveX !== 0 && squaresToMoveY !== 0) {
       return false
     }
 
@@ -43,32 +43,32 @@ export class Bishop implements Piece {
     const [fromX, fromY] = this.position
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
 
-    if (squaresToMoveX > 0) {
-      if (squaresToMoveY > 0) {
-        for (let i = 1; i < squaresToMoveY; i++) {
-          if (board[fromX - i][fromY - i].name !== PIECES.empty) {
+    if (squaresToMoveX !== 0) {
+      if (squaresToMoveX > 0) {
+        for (let i = 1; i < squaresToMoveX; i++) {
+          if (board[fromX - i][fromY].name !== PIECES.empty) {
             return true
           }
         }
-      } else if (squaresToMoveY < 0) {
-        for (let i = 1; i < Math.abs(squaresToMoveY); i++) {
-          if (board[fromX - i][fromY + i].name !== PIECES.empty) {
+      } else if (squaresToMoveX < 0) {
+        for (let i = 1; i < -squaresToMoveX; i++) {
+          if (board[fromX + i][fromY].name !== PIECES.empty) {
             return true
           }
         }
       }
     }
 
-    if (squaresToMoveX < 0) {
+    if (squaresToMoveY !== 0) {
       if (squaresToMoveY > 0) {
         for (let i = 1; i < squaresToMoveY; i++) {
-          if (board[fromX + i][fromY - i].name !== PIECES.empty) {
+          if (board[fromX][fromY - i].name !== PIECES.empty) {
             return true
           }
         }
       } else if (squaresToMoveY < 0) {
-        for (let i = 1; i < Math.abs(squaresToMoveY); i++) {
-          if (board[fromX + i][fromY + i].name !== PIECES.empty) {
+        for (let i = 1; i < -squaresToMoveY; i++) {
+          if (board[fromX][fromY + i].name !== PIECES.empty) {
             return true
           }
         }
@@ -86,7 +86,7 @@ export class Bishop implements Piece {
 
     return {
       squaresToMoveX,
-      squaresToMoveY,
+      squaresToMoveY
     }
   }
 }
