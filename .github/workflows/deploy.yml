@@ -23,7 +23,10 @@ jobs:
         run: |
           npm ci
           npm run build -w backend
-          zip -r publish.zip ./backend/dist
+          cd backend/dist
+          zip -r ../../publish.zip . # Zipea solo el contenido de la carpeta dist/src
+          cd ../..
+
       - name: Deploy to AWS Lambda
         run: |
           aws lambda update-function-code --function-name chess-api --zip-file fileb://publish.zip --region us-east-2
