@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
-    "build": "tsup",
+    "build": "rimraf dist && tsup",
     "start": "node dist/src/index.js"
   },
   "devDependencies": {
@@ -15,10 +15,10 @@
     "pino-pretty": "11.2.1",
     "ts-node": "10.9.2",
     "tsx": "4.15.2",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "rimraf":"5.0.7"
   },
   "dependencies": {
-    "tsup": "8.1.0",
     "cors": "2.8.5",
     "dotenv": "16.4.5",
     "envalid": "8.0.0",
@@ -29,6 +29,8 @@
     "js-chess-engine": "1.0.2",
     "pino": "9.2.0",
     "pino-http": "10.1.0",
+    "serverless-http": "3.2.0",
+    "tsup": "8.1.0",
     "zod": "3.23.8"
   }
 }
