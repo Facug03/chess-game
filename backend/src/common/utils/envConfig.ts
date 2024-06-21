@@ -1,12 +1,7 @@
 import dotenv from 'dotenv'
 import { cleanEnv, host, num, port, str } from 'envalid'
-import { fileURLToPath } from 'url'
-import path from 'path'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-dotenv.config({ path: path.resolve(__dirname.slice(0, __dirname.indexOf('src')), '.env') })
+dotenv.config()
 
 export const env = cleanEnv(process.env, {
   NODE_ENV: str({ choices: ['development', 'production', 'test'] }),
