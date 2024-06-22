@@ -45,21 +45,29 @@ p {
 }
 
 #turn {
-  display: inline-block;
   font-size: 18px;
   font-weight: 700;
   margin: 0;
+
+  @media (min-width: 768px) {
+    font-size: 20px;
+  }
 }
 
 .loader {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid #fff;
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+
+  @media (min-width: 768px) {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .hide {
