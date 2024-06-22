@@ -432,10 +432,7 @@ export class Chess {
     })
   }
 
-  private isCheckMateOrStealMate(): {
-    isCheckMate: boolean
-    isStealMate: boolean
-  } {
+  private isCheckMateOrStealMate(): { isCheckMate: boolean; isStealMate: boolean } {
     const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
 
     for (const row of this.board) {
