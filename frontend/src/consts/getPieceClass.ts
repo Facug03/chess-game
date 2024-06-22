@@ -13,5 +13,5 @@ export const getPieceClass = {
   bishop: Bishop,
   empty: Empty,
   pawn: Pawn,
-  king: King,
+  king: King
 }

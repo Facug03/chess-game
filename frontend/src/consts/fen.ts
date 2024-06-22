@@ -5,5 +5,5 @@ export const fenName = {
   queen: 'q',
   king: 'k',
   pawn: 'p',
-  empty: 'e',
+  empty: 'e'
 }
