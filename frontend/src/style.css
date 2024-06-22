@@ -10,12 +10,28 @@
   --green: #739552;
 }
 
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 main {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 25px;
+}
+
+header {
+  display: flex;
+  gap: 16px;
+  padding: 15px 0px;
+  align-items: center;
 }
 
 fieldset {
@@ -26,6 +42,28 @@ fieldset {
 
 p {
   margin: 0;
+}
+
+#turn {
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.hide {
+  display: none;
 }
 
 #chess-app {
@@ -270,6 +308,11 @@ input[type='radio']:checked::before {
 
 .button:hover {
   background-color: #353535;
+}
+
+.button:disabled {
+  cursor: auto;
+  background-color: #1f1f1f;
 }
 
 .icon {

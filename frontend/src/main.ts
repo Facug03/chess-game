@@ -10,10 +10,16 @@ import './style.css'
 const chess = new Chess()
 
 let $pieceSelected: HTMLElement | null = null
+const $turn = document.getElementById('turn') as HTMLHeadingElement
+const $reverse = document.getElementById('chess-reverse') as HTMLButtonElement
+const $reset = document.getElementById('chess-reset') as HTMLButtonElement
+const $undo = document.getElementById('chess-undo') as HTMLButtonElement
+const $redo = document.getElementById('chess-redo') as HTMLButtonElement
+const $loader = document.querySelector('.loader') as HTMLDivElement
 let mode: Mode = 'bot'
 let color: Color = 'white'
 let difficulty: Difficulty = 2
-const $turn = document.getElementById('turn') as HTMLHeadingElement
+let loading = false
 
 initGame()
 
@@ -58,16 +64,20 @@ async function gameLoop() {
     actualMovement: chess.actualMovement,
     movements: chess.movements,
     state: chess.state,
-    currentPlayer: chess.currentPlayer
+    currentPlayer: chess.currentPlayer,
+    loading
   })
-
-  if (mode === 'bot' && color !== chess.currentPlayer && chess.state === 'playing') {
+  if (mode === 'bot' && color !== chess.currentPlayer && chess.state === 'playing' && !loading) {
     if (chess.movements.length !== chess.actualMovement) return
 
+    loading = true
+    disableButtons(true)
     const [error, res] = await getAiMove(chess.getFen(), difficulty)
 
     if (error) {
       console.error(error)
+      loading = false
+      disableButtons(false)
       return
     }
 
@@ -75,9 +85,15 @@ async function gameLoop() {
     const $fromElement = document.querySelector(`[data-xy="${from[0]}-${from[1]}"]`) as HTMLElement
     const $toElement = document.querySelector(`[data-xy="${to[0]}-${to[1]}"]`) as HTMLElement
 
-    if (!$fromElement || !$toElement) return
+    if (!$fromElement || !$toElement) {
+      loading = false
+      disableButtons(false)
+      return
+    }
 
     movePiece($fromElement, $toElement)
+    loading = false
+    disableButtons(false)
 
     return
   }
@@ -222,13 +238,6 @@ function resetAndPrintBoard() {
 }
 
 function options() {
-  const $reverse = document.getElementById('chess-reverse')
-  const $reset = document.getElementById('chess-reset')
-  const $undo = document.getElementById('chess-undo')
-  const $redo = document.getElementById('chess-redo')
-
-  if (!$reverse || !$reset || !$undo || !$redo) return
-
   $reverse.addEventListener('click', () => {
     chess.toggleReverse()
     printBoard()
@@ -347,4 +356,21 @@ function playMode() {
       printBoard()
     })
   })
+}
+
+function disableButtons(disabled: boolean) {
+  console.log(disabled)
+  if (disabled) {
+    $undo.setAttribute('disabled', 'disabled')
+    $redo.setAttribute('disabled', 'disabled')
+    $reverse.setAttribute('disabled', 'disabled')
+    $reset.setAttribute('disabled', 'disabled')
+    $loader.classList.remove('hide')
+  } else {
+    $undo.removeAttribute('disabled')
+    $redo.removeAttribute('disabled')
+    $reverse.removeAttribute('disabled')
+    $reset.removeAttribute('disabled')
+    $loader.classList.add('hide')
+  }
 }
