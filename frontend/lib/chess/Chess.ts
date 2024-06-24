@@ -509,15 +509,11 @@ export class Chess {
 
     const lastMovements = this.movements[this.actualMovement - 1]
 
-    console.log({ lastMovements })
-
     if (!lastMovements) return
 
     for (const movement of lastMovements) {
       const [fromX, fromY] = movement.from.position
       const [toX, toY] = movement.to.position
-
-      console.log({ movement })
 
       if (lastMovements.indexOf(movement) === 0 && this.movements[this.actualMovement - 2]) {
         const movementBefore = this.movements[this.actualMovement - 2]
@@ -565,8 +561,6 @@ export class Chess {
     for (const movement of nextMovements) {
       const [fromX, fromY] = movement.from.position
       const [toX, toY] = movement.to.position
-
-      console.log(movement)
 
       if (fromX === toX && fromY === toY) {
         this.board[toX][toY] = new getPieceClass[movement.to.name](

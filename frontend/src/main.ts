@@ -57,16 +57,7 @@ function printBoard() {
 
 async function gameLoop() {
   $pieceSelected = null
-  console.log({
-    mode,
-    color,
-    difficulty,
-    actualMovement: chess.actualMovement,
-    movements: chess.movements,
-    state: chess.state,
-    currentPlayer: chess.currentPlayer,
-    loading
-  })
+
   if (mode === 'bot' && color !== chess.currentPlayer && chess.state === 'playing' && !loading) {
     if (chess.movements.length !== chess.actualMovement) return
 
@@ -141,8 +132,6 @@ function movePiece($from: HTMLElement, $to: HTMLElement) {
 
   const moveMade = chess.makeMove([fromX, fromY], [toX, toY])
 
-  console.log({ moveMade })
-
   if (!moveMade.moved) {
     removeColorClass($pieceSelected)
     $pieceSelected = null
@@ -195,7 +184,6 @@ function movePiece($from: HTMLElement, $to: HTMLElement) {
 }
 
 function selectPiece($pieceElement: HTMLElement, type: 'click' | 'dragstart') {
-  console.log({ $pieceElement, type, $pieceSelected })
   if ($pieceElement.dataset.color !== chess.currentPlayer || !$pieceElement.dataset.xy) return
 
   if ($pieceSelected) {
@@ -359,7 +347,6 @@ function playMode() {
 }
 
 function disableButtons(disabled: boolean) {
-  console.log(disabled)
   if (disabled) {
     $undo.setAttribute('disabled', 'disabled')
     $redo.setAttribute('disabled', 'disabled')
