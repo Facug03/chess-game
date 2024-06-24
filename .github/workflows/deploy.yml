@@ -1,22 +1,18 @@
 name: Deploy lambda
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy_lambda:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-
       - name: Install dependencies and bundle code
         env:
           CI: true
@@ -24,9 +20,8 @@ jobs:
           npm ci
           npm run build -w backend
           cd backend/dist
-          zip -r ../../publish.zip . # Zipea solo el contenido de la carpeta dist/src
+          zip -r ../../publish.zip .
           cd ../..
-
       - name: Deploy to AWS Lambda
         run: |
           aws lambda update-function-code --function-name chess-api --zip-file fileb://publish.zip --region us-east-2
