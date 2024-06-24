@@ -78,37 +78,40 @@ p {
   position: relative;
 }
 
-#chess-mode {
+form {
+  background: #131313;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+#chess-options {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: #131313;
-  border-radius: 8px;
-  padding: 8px 16px;
 }
 
-#chess-mode h2 {
+#chess-options h2 {
   margin: 0px;
 }
 
-#chess-mode label h3 {
+#chess-options label h3 {
   display: inline;
 }
 
-#chess-mode label p {
+#chess-options label p {
   display: inline;
 }
 
-#chess-mode fieldset {
+fieldset {
   border: none;
 }
 
-#chess-mode legend {
+#chess-options legend {
   font-size: 22px;
   font-weight: 700;
 }
 
-#chess-mode fieldset legend {
+#chess-options fieldset legend {
   font-size: 16px;
   font-weight: 600;
 }
