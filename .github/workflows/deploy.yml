@@ -24,7 +24,7 @@ jobs:
           cd ../..
       - name: Deploy to AWS Lambda
         run: |
-          aws lambda update-function-code --function-name chess-api --zip-file fileb://publish.zip --region us-east-2
+          aws lambda update-function-code --function-name chess-api --zip-file fileb://publish.zip --region us-east-2 > /dev/null
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
