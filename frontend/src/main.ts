@@ -38,6 +38,11 @@ function printBoard() {
     rows.push(
       row
         .map((piece) => {
+          if (piece.name === 'king' && piece.color === chess.isCheck) {
+            console.log('check')
+            return Square({ piece, isCheck: true })
+          }
+
           return Square({ piece })
         })
         .join('')
