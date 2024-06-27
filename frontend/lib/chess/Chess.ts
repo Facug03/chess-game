@@ -6,7 +6,6 @@ import { Knight } from './pieces/Knight'
 import { Pawn } from './pieces/Pawn'
 import { Queen } from './pieces/Queen'
 import { Rook } from './pieces/Rook'
-import { Player } from './player/Player'
 import { getPieceClass } from '@src/consts/getPieceClass'
 import { fenName } from '@src/consts/fen'
 import { POSITIONS_MAP_X, POSITIONS_MAP_Y } from '@src/consts/positionsMap'
@@ -14,19 +13,18 @@ import { POSITIONS_MAP_X, POSITIONS_MAP_Y } from '@src/consts/positionsMap'
 export class Chess {
   public board: ChessBoard
   public state: 'playing' | 'finished' = 'playing'
-  private players: [Player, Player]
   public currentPlayer: Color
   private lastMovedPiece: Piece | null = null
   public reverse = false
   public movements: Movements = []
   public actualMovement = 0
   private fiftyMoveRule = 0
+  public isCheck: Color | null = null
 
   constructor() {
     this.board = Array(8)
       .fill(null)
       .map(() => Array(8).fill(null))
-    this.players = [new Player('white'), new Player('black')]
     this.currentPlayer = 'white'
     this.placeInitialPieces('white')
     this.placeInitialPieces('black')
@@ -55,8 +53,7 @@ export class Chess {
 
     const copyBoard = this.copyBoard()
     this.movePiece([fromX, fromY], [toX, toY], copyBoard, false)
-    const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
-    const isCheckAfterMove = this.isKingInCheck(copyBoard, [currentPlayer])
+    const isCheckAfterMove = this.isKingInCheck(copyBoard, this.currentPlayer)
 
     if (isCheckAfterMove) {
       return {
@@ -77,6 +74,7 @@ export class Chess {
     const result = this.isCheckMateOrStealMate()
 
     if (result.isCheckMate) {
+      this.isCheck = null
       this.state = 'finished'
       return {
         moved: true,
@@ -86,6 +84,7 @@ export class Chess {
     }
 
     if (result.isStealMate) {
+      this.isCheck = null
       this.state = 'finished'
       return {
         moved: true,
@@ -93,6 +92,8 @@ export class Chess {
         type: moveMade.type
       }
     }
+
+    this.changeIsCheck()
 
     return {
       moved: true,
@@ -138,37 +139,32 @@ export class Chess {
     else this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white'
   }
 
-  private isKingInCheck(board: ChessBoard, players: Player[]): boolean {
-    for (const player of players) {
-      let kingPosition: PiecePosition | null = null
+  private isKingInCheck(board: ChessBoard, player: Color): boolean {
+    let kingPosition: PiecePosition | null = null
 
-      for (const row of board) {
-        for (const piece of row) {
-          if (piece.name === 'king' && piece.color === player.getColor()) {
-            kingPosition = [board.indexOf(row), row.indexOf(piece)]
-            break
-          }
+    for (const row of board) {
+      for (const piece of row) {
+        if (piece.name === 'king' && piece.color === player) {
+          kingPosition = [board.indexOf(row), row.indexOf(piece)]
+          break
         }
-
-        if (kingPosition) break
       }
 
-      if (!kingPosition) continue
-
-      const isCheck = board.some((row) =>
-        row.some(
-          (piece) =>
-            piece.color !== player.getColor() &&
-            piece.canMovePieceTo(kingPosition as PiecePosition, board, this.lastMovedPiece)
-        )
-      )
-
-      if (!isCheck) continue
-
-      return isCheck
+      if (kingPosition) break
     }
 
-    return false
+    if (!kingPosition) return false
+
+    const isCheck = board.some((row) =>
+      row.some(
+        (piece) =>
+          piece.color !== player && piece.canMovePieceTo(kingPosition as PiecePosition, board, this.lastMovedPiece)
+      )
+    )
+
+    if (!isCheck) return false
+
+    return isCheck
   }
 
   private movePiece(
@@ -281,6 +277,8 @@ export class Chess {
       if (result.isStealMate) {
         return 'stalemate'
       }
+
+      this.changeIsCheck()
 
       return null
     }
@@ -433,8 +431,6 @@ export class Chess {
   }
 
   private isCheckMateOrStealMate(): { isCheckMate: boolean; isStealMate: boolean } {
-    const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
-
     for (const row of this.board) {
       for (const piece of row) {
         if (piece.color !== this.currentPlayer) {
@@ -452,7 +448,7 @@ export class Chess {
       }
     }
 
-    if (this.isKingInCheck(this.board, [currentPlayer])) {
+    if (this.isKingInCheck(this.board, this.currentPlayer)) {
       return {
         isCheckMate: true,
         isStealMate: false
@@ -469,7 +465,6 @@ export class Chess {
     const [x, y] = position
     const piece = this.board[x][y]
     const possibleMoves: PiecePosition[] = []
-    const currentPlayer = this.currentPlayer === 'white' ? this.players[0] : this.players[1]
 
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -480,7 +475,7 @@ export class Chess {
         const copyBoard = this.copyBoard()
         this.movePiece(piece.position, [x, y], copyBoard, false)
 
-        if (this.isKingInCheck(copyBoard, [currentPlayer])) continue
+        if (this.isKingInCheck(copyBoard, this.currentPlayer)) continue
 
         possibleMoves.push([x, y])
       }
@@ -502,6 +497,8 @@ export class Chess {
     this.actualMovement = 0
     this.state = 'playing'
     this.fiftyMoveRule = 0
+    this.lastMovedPiece = null
+    this.isCheck = null
   }
 
   public undo() {
@@ -549,6 +546,7 @@ export class Chess {
 
     this.actualMovement -= 1
     this.changePlayer(this.actualMovement % 2 === 0 ? 'white' : 'black')
+    this.changeIsCheck()
   }
 
   public redo() {
@@ -589,6 +587,7 @@ export class Chess {
 
     this.actualMovement += 1
     this.changePlayer(this.actualMovement % 2 === 0 ? 'white' : 'black')
+    this.changeIsCheck()
   }
 
   public getFen() {
@@ -693,5 +692,9 @@ export class Chess {
     }
 
     this.fiftyMoveRule += 1
+  }
+
+  private changeIsCheck() {
+    this.isCheck = this.isKingInCheck(this.board, this.currentPlayer) ? this.currentPlayer : null
   }
 }
