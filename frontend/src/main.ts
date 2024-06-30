@@ -39,7 +39,6 @@ function printBoard() {
       row
         .map((piece) => {
           if (piece.name === 'king' && piece.color === chess.isCheck) {
-            console.log('check')
             return Square({ piece, isCheck: true })
           }
 
@@ -71,7 +70,6 @@ async function gameLoop() {
     const [error, res] = await getAiMove(chess.getFen(), difficulty)
 
     if (error) {
-      console.error(error)
       loading = false
       disableButtons(false)
       return
