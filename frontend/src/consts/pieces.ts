@@ -7,5 +7,5 @@ export const PIECES: Record<PieceName, PieceName> = {
   queen: 'queen',
   king: 'king',
   pawn: 'pawn',
-  empty: 'empty',
+  empty: 'empty'
 }
