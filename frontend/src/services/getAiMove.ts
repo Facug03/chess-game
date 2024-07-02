@@ -35,12 +35,12 @@ export async function getAiMove(
     }
 
     const from = [
-      POSITIONS_MAP_X_REVERSE[responseObject.move.from[1]],
-      POSITIONS_MAP_Y_REVERSE[responseObject.move.from[0].toLowerCase()]
+      POSITIONS_MAP_X_REVERSE[responseObject.move.from[0].toLowerCase()],
+      POSITIONS_MAP_Y_REVERSE[responseObject.move.from[1]]
     ] as PiecePosition
     const to = [
-      POSITIONS_MAP_X_REVERSE[responseObject.move.to[1]],
-      POSITIONS_MAP_Y_REVERSE[responseObject.move.to[0].toLowerCase()]
+      POSITIONS_MAP_X_REVERSE[responseObject.move.to[0].toLowerCase()],
+      POSITIONS_MAP_Y_REVERSE[responseObject.move.to[1]]
     ] as PiecePosition
 
     return [null, { from, to }]

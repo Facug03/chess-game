@@ -28,11 +28,11 @@ export class Pawn implements Piece {
       return false
     }
 
-    if (squaresToMoveX <= 0 || squaresToMoveX > 2 || Math.abs(squaresToMoveY) > 1) {
+    if (squaresToMoveY <= 0 || squaresToMoveY > 2 || Math.abs(squaresToMoveX) > 1) {
       return false
     }
 
-    if (squaresToMoveX === 2 && squaresToMoveY !== 0) {
+    if (squaresToMoveY === 2 && squaresToMoveX !== 0) {
       return false
     }
 
@@ -46,9 +46,9 @@ export class Pawn implements Piece {
   checkColision(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const [toX, toY] = moveTo
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
-    const moveToBoardPosition = board[toX][toY]
+    const moveToBoardPosition = board[toY][toX]
 
-    if (squaresToMoveX === 2 && squaresToMoveY === 0) {
+    if (squaresToMoveY === 2 && squaresToMoveX === 0) {
       if (this.moveCount > 0) {
         return true
       }
@@ -57,27 +57,27 @@ export class Pawn implements Piece {
         return true
       }
 
-      const formatToX = this.color === 'white' ? toX + 1 : toX - 1
+      const formatToY = this.color === 'white' ? toY + 1 : toY - 1
 
-      if (board[formatToX][toY].name !== PIECES.empty) {
+      if (board[formatToY][toX].name !== PIECES.empty) {
         return true
       }
     }
 
-    if (squaresToMoveX === 1 && squaresToMoveY === 0) {
+    if (squaresToMoveY === 1 && squaresToMoveX === 0) {
       if (moveToBoardPosition.name !== PIECES.empty && moveToBoardPosition.color !== this.color) {
         return true
       }
     }
 
-    if (squaresToMoveX === 1 && squaresToMoveY !== 0) {
+    if (squaresToMoveY === 1 && squaresToMoveX !== 0) {
       if (moveToBoardPosition.color === this.color) {
         return true
       }
 
       if (moveToBoardPosition.name === PIECES.empty) {
-        const formatToX = this.color === 'white' ? toX + 1 : toX - 1
-        const sidePiece = board[formatToX][toY]
+        const formatToY = this.color === 'white' ? toY + 1 : toY - 1
+        const sidePiece = board[formatToY][toX]
 
         if (sidePiece.name === PIECES.empty) {
           return true
@@ -110,13 +110,13 @@ export class Pawn implements Piece {
   squaresToMove(moveTo: PiecePosition) {
     const [fromX, fromY] = this.position
     const [toX, toY] = moveTo
-    let squaresToMoveX = fromX - toX
-    const squaresToMoveY = fromY - toY
-    squaresToMoveX = this.color === 'white' ? squaresToMoveX : -squaresToMoveX
+    const squaresToMoveX = fromX - toX
+    let squaresToMoveY = fromY - toY
+    squaresToMoveY = this.color === 'white' ? squaresToMoveY : -squaresToMoveY
 
     return {
       squaresToMoveX,
-      squaresToMoveY,
+      squaresToMoveY
     }
   }
 }

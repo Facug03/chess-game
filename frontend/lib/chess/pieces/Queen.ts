@@ -44,32 +44,32 @@ export class Queen implements Piece {
     const { squaresToMoveX, squaresToMoveY } = this.squaresToMove(moveTo)
 
     if (squaresToMoveX === 0 || squaresToMoveY === 0) {
-      if (squaresToMoveX !== 0) {
-        if (squaresToMoveX > 0) {
-          for (let i = 1; i < squaresToMoveX; i++) {
-            if (board[fromX - i][fromY].name !== PIECES.empty) {
-              return true
-            }
-          }
-        } else if (squaresToMoveX < 0) {
-          for (let i = 1; i < -squaresToMoveX; i++) {
-            if (board[fromX + i][fromY].name !== PIECES.empty) {
-              return true
-            }
-          }
-        }
-      }
-
       if (squaresToMoveY !== 0) {
         if (squaresToMoveY > 0) {
           for (let i = 1; i < squaresToMoveY; i++) {
-            if (board[fromX][fromY - i].name !== PIECES.empty) {
+            if (board[fromY - i][fromX].name !== PIECES.empty) {
               return true
             }
           }
         } else if (squaresToMoveY < 0) {
           for (let i = 1; i < -squaresToMoveY; i++) {
-            if (board[fromX][fromY + i].name !== PIECES.empty) {
+            if (board[fromY + i][fromX].name !== PIECES.empty) {
+              return true
+            }
+          }
+        }
+      }
+
+      if (squaresToMoveX !== 0) {
+        if (squaresToMoveX > 0) {
+          for (let i = 1; i < squaresToMoveX; i++) {
+            if (board[fromY][fromX - i].name !== PIECES.empty) {
+              return true
+            }
+          }
+        } else if (squaresToMoveX < 0) {
+          for (let i = 1; i < -squaresToMoveX; i++) {
+            if (board[fromY][fromX + i].name !== PIECES.empty) {
               return true
             }
           }
@@ -77,32 +77,32 @@ export class Queen implements Piece {
       }
     }
 
-    if (squaresToMoveX > 0) {
-      if (squaresToMoveY > 0) {
-        for (let i = 1; i < squaresToMoveY; i++) {
-          if (board[fromX - i][fromY - i].name !== PIECES.empty) {
+    if (squaresToMoveY > 0) {
+      if (squaresToMoveX > 0) {
+        for (let i = 1; i < squaresToMoveX; i++) {
+          if (board[fromY - i][fromX - i].name !== PIECES.empty) {
             return true
           }
         }
-      } else if (squaresToMoveY < 0) {
-        for (let i = 1; i < Math.abs(squaresToMoveY); i++) {
-          if (board[fromX - i][fromY + i].name !== PIECES.empty) {
+      } else if (squaresToMoveX < 0) {
+        for (let i = 1; i < Math.abs(squaresToMoveX); i++) {
+          if (board[fromY - i][fromX + i].name !== PIECES.empty) {
             return true
           }
         }
       }
     }
 
-    if (squaresToMoveX < 0) {
-      if (squaresToMoveY > 0) {
-        for (let i = 1; i < squaresToMoveY; i++) {
-          if (board[fromX + i][fromY - i].name !== PIECES.empty) {
+    if (squaresToMoveY < 0) {
+      if (squaresToMoveX > 0) {
+        for (let i = 1; i < squaresToMoveX; i++) {
+          if (board[fromY + i][fromX - i].name !== PIECES.empty) {
             return true
           }
         }
-      } else if (squaresToMoveY < 0) {
-        for (let i = 1; i < Math.abs(squaresToMoveY); i++) {
-          if (board[fromX + i][fromY + i].name !== PIECES.empty) {
+      } else if (squaresToMoveX < 0) {
+        for (let i = 1; i < Math.abs(squaresToMoveX); i++) {
+          if (board[fromY + i][fromX + i].name !== PIECES.empty) {
             return true
           }
         }

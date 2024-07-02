@@ -46,13 +46,13 @@ export class Rook implements Piece {
     if (squaresToMoveX !== 0) {
       if (squaresToMoveX > 0) {
         for (let i = 1; i < squaresToMoveX; i++) {
-          if (board[fromX - i][fromY].name !== PIECES.empty) {
+          if (board[fromY][fromX - i].name !== PIECES.empty) {
             return true
           }
         }
       } else if (squaresToMoveX < 0) {
         for (let i = 1; i < -squaresToMoveX; i++) {
-          if (board[fromX + i][fromY].name !== PIECES.empty) {
+          if (board[fromY][fromX + i].name !== PIECES.empty) {
             return true
           }
         }
@@ -62,13 +62,13 @@ export class Rook implements Piece {
     if (squaresToMoveY !== 0) {
       if (squaresToMoveY > 0) {
         for (let i = 1; i < squaresToMoveY; i++) {
-          if (board[fromX][fromY - i].name !== PIECES.empty) {
+          if (board[fromY - i][fromX].name !== PIECES.empty) {
             return true
           }
         }
       } else if (squaresToMoveY < 0) {
         for (let i = 1; i < -squaresToMoveY; i++) {
-          if (board[fromX][fromY + i].name !== PIECES.empty) {
+          if (board[fromY + i][fromX].name !== PIECES.empty) {
             return true
           }
         }

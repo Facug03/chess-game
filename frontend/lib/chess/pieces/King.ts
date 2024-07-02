@@ -28,11 +28,11 @@ export class King implements Piece {
       return false
     }
 
-    if (Math.abs(squaresToMoveX) > 1 || Math.abs(squaresToMoveY) > 2) {
+    if (Math.abs(squaresToMoveY) > 1 || Math.abs(squaresToMoveX) > 2) {
       return false
     }
 
-    if (Math.abs(squaresToMoveX) === 1 && Math.abs(squaresToMoveY) === 2) {
+    if (Math.abs(squaresToMoveY) === 1 && Math.abs(squaresToMoveX) === 2) {
       return false
     }
 
@@ -46,12 +46,13 @@ export class King implements Piece {
   checkColision(moveTo: PiecePosition, board: ChessBoard, lastMovedPiece: Piece | null): boolean {
     const [toX, toY] = moveTo
     const [fromX, fromY] = this.position
-    const { squaresToMoveY } = this.squaresToMove(moveTo)
-    if (board[toX][toY].color === this.color) {
+    const { squaresToMoveX } = this.squaresToMove(moveTo)
+
+    if (board[toY][toX].color === this.color) {
       return true
     }
 
-    if (Math.abs(squaresToMoveY) === 2) {
+    if (Math.abs(squaresToMoveX) === 2) {
       const isCheck = board.some((row) =>
         row.some((piece) => piece.color !== this.color && piece.canMovePieceTo(this.position, board, lastMovedPiece))
       )
@@ -64,24 +65,24 @@ export class King implements Piece {
         return true
       }
 
-      const direction = squaresToMoveY > 0 ? -1 : 1
-      const squaresToCheck = squaresToMoveY > 0 ? 4 : 3
+      const direction = squaresToMoveX > 0 ? -1 : 1
+      const squaresToCheck = squaresToMoveX > 0 ? 4 : 3
 
       for (let i = 1; i <= squaresToCheck; i++) {
-        const intermediateY = fromY + i * direction
+        const intermediateX = fromX + i * direction
 
         if (i === squaresToCheck) {
-          if (board[fromX][intermediateY].name !== PIECES.rook) return true
+          if (board[fromY][intermediateX].name !== PIECES.rook) return true
 
-          if (board[fromX][intermediateY].moveCount > 0) return true
+          if (board[fromY][intermediateX].moveCount > 0) return true
         } else {
-          if (board[fromX][intermediateY].name !== PIECES.empty) return true
+          if (board[fromY][intermediateX].name !== PIECES.empty) return true
 
-          if (board[fromX][intermediateY].name === PIECES.empty && i <= 2) {
+          if (board[fromY][intermediateX].name === PIECES.empty && i <= 2) {
             const canMove = board.some((row) =>
               row.some(
                 (piece) =>
-                  piece.color !== this.color && piece.canMovePieceTo([fromX, intermediateY], board, lastMovedPiece)
+                  piece.color !== this.color && piece.canMovePieceTo([intermediateX, fromY], board, lastMovedPiece)
               )
             )
 

@@ -50,7 +50,7 @@ export class Knight implements Piece {
   checkColision(moveTo: PiecePosition, board: ChessBoard): boolean {
     const [toX, toY] = moveTo
 
-    if (board[toX][toY].color === this.color) {
+    if (board[toY][toX].color === this.color) {
       return true
     }
 

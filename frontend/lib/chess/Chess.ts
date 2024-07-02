@@ -40,7 +40,7 @@ export class Chess {
     type: MoveType | null
     callBack?: (pieceName: PieceName) => FinishGame | null
   } {
-    const currentPiece = this.board[fromX][fromY]
+    const currentPiece = this.board[fromY][fromX]
     const canMove = currentPiece.canMovePieceTo([toX, toY], this.board, this.lastMovedPiece)
 
     if (!canMove) {
@@ -108,28 +108,28 @@ export class Chess {
     const mainRow = isWhite ? 7 : 0
     const pawnRow = isWhite ? 6 : 1
 
-    this.board[mainRow][0] = new Rook(color, [mainRow, 0], `/assets/pieces/${color}/rook.png`, 0)
-    this.board[mainRow][1] = new Knight(color, [mainRow, 1], `/assets/pieces/${color}/knight.png`, 0)
-    this.board[mainRow][2] = new Bishop(color, [mainRow, 2], `/assets/pieces/${color}/bishop.png`, 0)
-    this.board[mainRow][3] = new Queen(color, [mainRow, 3], `/assets/pieces/${color}/queen.png`, 0)
-    this.board[mainRow][4] = new King(color, [mainRow, 4], `/assets/pieces/${color}/king.png`, 0)
-    this.board[mainRow][5] = new Bishop(color, [mainRow, 5], `/assets/pieces/${color}/bishop.png`, 0)
-    this.board[mainRow][6] = new Knight(color, [mainRow, 6], `/assets/pieces/${color}/knight.png`, 0)
-    this.board[mainRow][7] = new Rook(color, [mainRow, 7], `/assets/pieces/${color}/rook.png`, 0)
+    this.board[mainRow][0] = new Rook(color, [0, mainRow], `/assets/pieces/${color}/rook.png`, 0)
+    this.board[mainRow][1] = new Knight(color, [1, mainRow], `/assets/pieces/${color}/knight.png`, 0)
+    this.board[mainRow][2] = new Bishop(color, [2, mainRow], `/assets/pieces/${color}/bishop.png`, 0)
+    this.board[mainRow][3] = new Queen(color, [3, mainRow], `/assets/pieces/${color}/queen.png`, 0)
+    this.board[mainRow][4] = new King(color, [4, mainRow], `/assets/pieces/${color}/king.png`, 0)
+    this.board[mainRow][5] = new Bishop(color, [5, mainRow], `/assets/pieces/${color}/bishop.png`, 0)
+    this.board[mainRow][6] = new Knight(color, [6, mainRow], `/assets/pieces/${color}/knight.png`, 0)
+    this.board[mainRow][7] = new Rook(color, [7, mainRow], `/assets/pieces/${color}/rook.png`, 0)
 
     for (let i = 0; i < 8; i++) {
-      this.board[pawnRow][i] = new Pawn(color, [pawnRow, i], `/assets/pieces/${color}/pawn.png`, 0)
+      this.board[pawnRow][i] = new Pawn(color, [i, pawnRow], `/assets/pieces/${color}/pawn.png`, 0)
     }
   }
 
   private placeInitialEmptyPieces() {
     Array(4)
       .fill('')
-      .map((_, x) => {
+      .map((_, y) => {
         return Array(8)
           .fill('')
-          .forEach((_, y) => {
-            this.board[Math.abs(x - 5)][y] = new Empty('empty', [Math.abs(x - 5), y], '', 0)
+          .forEach((_, x) => {
+            this.board[Math.abs(y - 5)][x] = new Empty('empty', [x, Math.abs(y - 5)], '', 0)
           })
       })
   }
@@ -145,7 +145,7 @@ export class Chess {
     for (const row of board) {
       for (const piece of row) {
         if (piece.name === 'king' && piece.color === player) {
-          kingPosition = [board.indexOf(row), row.indexOf(piece)]
+          kingPosition = [row.indexOf(piece), board.indexOf(row)]
           break
         }
       }
@@ -178,13 +178,13 @@ export class Chess {
   } {
     const [fromX, fromY] = position
     const [toX, toY] = moveTo
-    const piece = board[fromX][fromY]
+    const piece = board[fromY][fromX]
     const promotePawn =
       piece.name === 'pawn' &&
-      ((piece.color === 'white' && toX === 0) || (piece.color === 'black' && toX === 7)) &&
+      ((piece.color === 'white' && toY === 0) || (piece.color === 'black' && toY === 7)) &&
       changePosition
-    const enPassant = piece.name === 'pawn' && fromY !== toY && board[toX][toY].name === 'empty'
-    const castling = piece.name === 'king' && Math.abs(fromY - toY) === 2
+    const enPassant = piece.name === 'pawn' && fromX !== toX && board[toY][toX].name === 'empty'
+    const castling = piece.name === 'king' && Math.abs(fromX - toX) === 2
     let type: MoveType = 'normal'
 
     if (changePosition) {
@@ -211,13 +211,13 @@ export class Chess {
         this.movements.push([
           {
             from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-            to: board[toX][toY]
+            to: board[toY][toX]
           }
         ])
       }
 
-      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
-      board[toX][toY] = piece
+      board[fromY][fromX] = new Empty('empty', [fromX, fromY], '', 0)
+      board[toY][toX] = piece
     }
 
     if (changePosition) {
@@ -236,7 +236,7 @@ export class Chess {
     [toX, toY]: PiecePosition,
     board: ChessBoard
   ): (pieceName: PieceName) => FinishGame | null {
-    const piece = this.board[fromX][fromY]
+    const piece = this.board[fromY][fromX]
     piece.moveCount -= 1
 
     return (pieceName: PieceName): FinishGame | null => {
@@ -254,13 +254,13 @@ export class Chess {
           to: newPiece
         },
         {
-          from: board[toX][toY],
+          from: board[toY][toX],
           to: newPiece
         }
       ])
 
-      board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
-      board[toX][toY] = newPiece
+      board[fromY][fromX] = new Empty('empty', [fromX, fromY], '', 0)
+      board[toY][toX] = newPiece
 
       newPiece.setPosition([toX, toY])
       this.lastMovedPiece = newPiece
@@ -290,104 +290,104 @@ export class Chess {
     board: ChessBoard,
     changePosition: boolean
   ): void {
-    const piece = this.board[fromX][fromY]
+    const piece = this.board[fromY][fromX]
 
     this.movements.push([
       {
         from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-        to: board[toX][toY]
+        to: board[toY][toX]
       }
     ])
-    board[toX][toY] = piece
-    board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
+    board[toY][toX] = piece
+    board[fromY][fromX] = new Empty('empty', [fromX, fromY], '', 0)
 
     if (this.currentPlayer === 'white') {
-      if (fromY < toY) {
+      if (fromX < toX) {
         if (changePosition) {
           this.movements[this.movements.length - 1].push({
-            from: new getPieceClass[board[toX][7].name](
-              board[toX][7].color,
-              [toX, 7],
-              board[toX][7].image,
-              board[toX][7].moveCount
+            from: new getPieceClass[board[toY][7].name](
+              board[toY][7].color,
+              [7, toY],
+              board[toY][7].image,
+              board[toY][7].moveCount
             ),
-            to: new getPieceClass[board[toX][toY - 1].name](
-              board[toX][toY - 1].color,
-              [toX, toY - 1],
-              board[toX][toY - 1].image,
-              board[toX][toY - 1].moveCount
+            to: new getPieceClass[board[toY][toX - 1].name](
+              board[toY][toX - 1].color,
+              [toX - 1, toY],
+              board[toY][toX - 1].image,
+              board[toY][toX - 1].moveCount
             )
           })
-          board[toX][7].setPosition([toX, toY - 1])
+          board[toY][7].setPosition([toX - 1, toY])
         }
 
-        board[toX][toY - 1] = board[toX][7]
-        board[toX][7] = new Empty('empty', [toX, 7], '', 0)
+        board[toY][toX - 1] = board[toY][7]
+        board[toY][7] = new Empty('empty', [7, toY], '', 0)
       } else {
         if (changePosition) {
           this.movements[this.movements.length - 1].push({
-            from: new getPieceClass[board[toX][0].name](
-              board[toX][0].color,
+            from: new getPieceClass[board[toY][0].name](
+              board[toY][0].color,
               [toX, 0],
-              board[toX][0].image,
-              board[toX][0].moveCount
+              board[toY][0].image,
+              board[toY][0].moveCount
             ),
-            to: new getPieceClass[board[toX][toY + 1].name](
-              board[toX][toY + 1].color,
-              [toX, toY + 1],
-              board[toX][toY + 1].image,
-              board[toX][toY + 1].moveCount
+            to: new getPieceClass[board[toY][toX + 1].name](
+              board[toY][toX + 1].color,
+              [toX + 1, toY],
+              board[toY][toX + 1].image,
+              board[toY][toX + 1].moveCount
             )
           })
-          board[toX][0].setPosition([toX, toY + 1])
+          board[toY][0].setPosition([toX, toY + 1])
         }
 
-        board[toX][toY + 1] = board[toX][0]
-        board[toX][0] = new Empty('empty', [toX, 0], '', 0)
+        board[toY][toX + 1] = board[toY][0]
+        board[toY][0] = new Empty('empty', [0, toY], '', 0)
       }
     } else {
-      if (fromY > toY) {
+      if (fromX > toX) {
         if (changePosition) {
           this.movements[this.movements.length - 1].push({
-            from: new getPieceClass[board[toX][0].name](
-              board[toX][0].color,
+            from: new getPieceClass[board[toY][0].name](
+              board[toY][0].color,
               [toX, 0],
-              board[toX][0].image,
-              board[toX][0].moveCount
+              board[toY][0].image,
+              board[toY][0].moveCount
             ),
-            to: new getPieceClass[board[toX][toY + 1].name](
-              board[toX][toY + 1].color,
-              [toX, toY + 1],
-              board[toX][toY + 1].image,
-              board[toX][toY + 1].moveCount
+            to: new getPieceClass[board[toY][toX + 1].name](
+              board[toY][toX + 1].color,
+              [toX + 1, toY],
+              board[toY][toX + 1].image,
+              board[toY][toX + 1].moveCount
             )
           })
-          board[toX][0].setPosition([toX, toY + 1])
+          board[toY][0].setPosition([toX + 1, toY])
         }
 
-        board[toX][toY + 1] = board[toX][0]
-        board[toX][0] = new Empty('empty', [toX, 0], '', 0)
+        board[toY][toX + 1] = board[toY][0]
+        board[toY][0] = new Empty('empty', [0, toY], '', 0)
       } else {
         if (changePosition) {
           this.movements[this.movements.length - 1].push({
-            from: new getPieceClass[board[toX][7].name](
-              board[toX][7].color,
-              [toX, 7],
-              board[toX][7].image,
-              board[toX][7].moveCount
+            from: new getPieceClass[board[toY][7].name](
+              board[toY][7].color,
+              [7, toY],
+              board[toY][7].image,
+              board[toY][7].moveCount
             ),
-            to: new getPieceClass[board[toX][toY - 1].name](
-              board[toX][toY - 1].color,
-              [toX, toY - 1],
-              board[toX][toY - 1].image,
-              board[toX][toY - 1].moveCount
+            to: new getPieceClass[board[toY][toX - 1].name](
+              board[toY][toX - 1].color,
+              [toX - 1, toY],
+              board[toY][toX - 1].image,
+              board[toY][toX - 1].moveCount
             )
           })
-          board[toX][7].setPosition([toX, toY - 1])
+          board[toY][7].setPosition([toX - 1, toY])
         }
 
-        board[toX][toY - 1] = board[toX][7]
-        board[toX][7] = new Empty('empty', [toX, 7], '', 0)
+        board[toY][toX - 1] = board[toY][7]
+        board[toY][7] = new Empty('empty', [7, toY], '', 0)
       }
     }
   }
@@ -398,30 +398,30 @@ export class Chess {
     board: ChessBoard,
     changePosition: boolean
   ) {
-    const piece = this.board[fromX][fromY]
-    const formatToX = this.currentPlayer === 'white' ? toX + 1 : toX - 1
+    const piece = this.board[fromY][fromX]
+    const formatToY = this.currentPlayer === 'white' ? toY + 1 : toY - 1
 
     if (changePosition) {
       this.movements.push([
         {
           from: new getPieceClass[piece.name](piece.color, [fromX, fromY], piece.image, piece.moveCount),
-          to: board[toX][toY]
+          to: board[toY][toX]
         },
         {
-          from: new getPieceClass[board[formatToX][toY].name](
-            board[formatToX][toY].color,
-            [formatToX, toY],
-            board[formatToX][toY].image,
-            board[formatToX][toY].moveCount
+          from: new getPieceClass[board[formatToY][toX].name](
+            board[formatToY][toX].color,
+            [toX, formatToY],
+            board[formatToY][toX].image,
+            board[formatToY][toX].moveCount
           ),
-          to: new Empty('empty', [formatToX, toY], '', 0)
+          to: new Empty('empty', [toX, formatToY], '', 0)
         }
       ])
     }
 
-    board[toX][toY] = piece
-    board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
-    board[formatToX][toY] = new Empty('empty', [formatToX, toY], '', 0)
+    board[toY][toX] = piece
+    board[fromY][fromX] = new Empty('empty', [fromX, fromY], '', 0)
+    board[formatToY][toX] = new Empty('empty', [toX, formatToY], '', 0)
   }
 
   public copyBoard(): ChessBoard {
@@ -463,11 +463,11 @@ export class Chess {
 
   public getAllPossibleMoves(position: PiecePosition): PiecePosition[] {
     const [x, y] = position
-    const piece = this.board[x][y]
+    const piece = this.board[y][x]
     const possibleMoves: PiecePosition[] = []
 
-    for (let x = 0; x < 8; x++) {
-      for (let y = 0; y < 8; y++) {
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
         const canMove = piece.canMovePieceTo([x, y], this.board, this.lastMovedPiece)
 
         if (!canMove) continue
@@ -533,15 +533,15 @@ export class Chess {
       )
 
       if (fromX === toX && fromY === toY) {
-        this.board[fromX][fromY] = newPiece
+        this.board[fromY][fromX] = newPiece
         continue
       }
 
       if (lastMovements.indexOf(movement) === 0) {
         newPiece.moveCount -= 1
       }
-      this.board[fromX][fromY] = newPiece
-      this.board[toX][toY] = movement.to
+      this.board[fromY][fromX] = newPiece
+      this.board[toY][toX] = movement.to
     }
 
     this.actualMovement -= 1
@@ -561,7 +561,7 @@ export class Chess {
       const [toX, toY] = movement.to.position
 
       if (fromX === toX && fromY === toY) {
-        this.board[toX][toY] = new getPieceClass[movement.to.name](
+        this.board[toY][toX] = new getPieceClass[movement.to.name](
           movement.to.color,
           [toX, toY],
           movement.to.image,
@@ -581,8 +581,8 @@ export class Chess {
         this.lastMovedPiece = newPiece
       }
 
-      this.board[fromX][fromY] = new Empty('empty', [fromX, fromY], '', 0)
-      this.board[toX][toY] = newPiece
+      this.board[fromY][fromX] = new Empty('empty', [fromX, fromY], '', 0)
+      this.board[toY][toX] = newPiece
     }
 
     this.actualMovement += 1
@@ -665,11 +665,11 @@ export class Chess {
     const [x, y] = this.lastMovedPiece.position
 
     if (this.lastMovedPiece.color === 'white' && x === 4) {
-      return `${POSITIONS_MAP_Y[y]}${POSITIONS_MAP_X[x + 1]}`
+      return `${POSITIONS_MAP_X[x]}${POSITIONS_MAP_Y[y + 1]}`
     }
 
     if (this.lastMovedPiece.color === 'black' && x === 3) {
-      return `${POSITIONS_MAP_Y[y]}${POSITIONS_MAP_X[x - 1]}`
+      return `${POSITIONS_MAP_X[x]}${POSITIONS_MAP_Y[y - 1]}`
     }
 
     return '-'
@@ -678,8 +678,8 @@ export class Chess {
   private calculateFiftyMoveRule(from: PiecePosition, to: PiecePosition) {
     const [fromX, fromY] = from
     const [toX, toY] = to
-    const movedPiece = this.board[fromX][fromY]
-    const takenPiece = this.board[toX][toY]
+    const movedPiece = this.board[fromY][fromX]
+    const takenPiece = this.board[toY][toX]
 
     if (movedPiece.name === 'pawn') {
       this.fiftyMoveRule = 0
