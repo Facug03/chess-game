@@ -1,5 +1,12 @@
 import { Chess } from '@lib/chess/Chess'
 import { Color, FinishGame, PiecePosition, PieceName } from '@lib/chess/types'
+import {
+  addColorClass,
+  highlightLastMovement,
+  remodeAllGuideLines,
+  removeColorClass,
+  removePromotePawn
+} from '@src/utils/boardUi'
 import { Square } from '@src/ui/Square'
 import { Gameover } from '@src/ui/Gameover'
 import { Promote } from '@src/ui/Promote'
@@ -24,9 +31,9 @@ let loading = false
 initGame()
 
 function initGame() {
-  playMode()
+  selectModeListener()
   printBoard()
-  options()
+  optionsListener()
 }
 
 function printBoard() {
@@ -228,7 +235,7 @@ function resetAndPrintBoard() {
   printBoard()
 }
 
-function options() {
+function optionsListener() {
   $reverse.addEventListener('click', () => {
     chess.toggleReverse()
     printBoard()
@@ -249,45 +256,6 @@ function options() {
   })
 }
 
-function removePromotePawn() {
-  const $promotes = document.querySelectorAll('.promote')
-
-  $promotes.forEach(($promote) => {
-    $promote.remove()
-  })
-}
-
-function removeColorClass($element: HTMLElement | null) {
-  $element?.classList?.remove(`selected-${$element.classList.contains('green') ? 'green' : 'grey'}`)
-}
-
-function addColorClass($element: HTMLElement | null) {
-  $element?.classList?.add(`selected-${$element.classList.contains('green') ? 'green' : 'grey'}`)
-}
-
-function remodeAllGuideLines() {
-  const $guideLines = document.querySelectorAll('.guideLine, .captureGuideLine')
-
-  $guideLines.forEach(($guideLine) => {
-    $guideLine.remove()
-  })
-}
-
-function highlightLastMovement(from: PiecePosition, move: PiecePosition) {
-  const [fromX, fromY] = from
-  const [toX, toY] = move
-  const $toElement = document.querySelector(`[data-xy="${toX}-${toY}"]`) as HTMLElement
-  const $fromElement = document.querySelector(`[data-xy="${fromX}-${fromY}"]`) as HTMLElement
-  const $elements = [...document.querySelectorAll('.selected-green, .selected-grey')] as HTMLElement[]
-
-  $elements.forEach(($element) => {
-    removeColorClass($element)
-  })
-
-  addColorClass($toElement)
-  addColorClass($fromElement)
-}
-
 function gameOver(type: FinishGame, win: Color) {
   const $app = document.getElementById('chess-app')
 
@@ -304,7 +272,7 @@ function gameOver(type: FinishGame, win: Color) {
   })
 }
 
-function playMode() {
+function selectModeListener() {
   const $modes = document.querySelectorAll('input[name="mode"]') as NodeListOf<HTMLInputElement>
   const $color = document.querySelectorAll('input[name="color"]') as NodeListOf<HTMLInputElement>
   const $difficulty = document.querySelectorAll('input[name="difficulty"]') as NodeListOf<HTMLInputElement>
