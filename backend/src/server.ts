@@ -17,7 +17,10 @@ const app: Express = express()
 app.set('trust proxy', true)
 
 // Middlewares
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }))
+const corsOrigins = env.CORS_ORIGIN.split(',')
+  .map((o: string) => o.trim())
+  .filter(Boolean)
+app.use(cors({ origin: corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins, credentials: true }))
 app.use(helmet())
 app.use(rateLimiter)
 app.use(express.json())
